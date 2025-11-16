@@ -1,0 +1,138 @@
+/**
+ * Portfolio Plugin - Admin Styles
+ */
+
+/* Meta Field Styling */
+.portfolio-meta-field {
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.portfolio-meta-field:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.portfolio-meta-field label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #333;
+}
+
+.portfolio-meta-field label strong {
+    display: block;
+    margin-bottom: 3px;
+}
+
+.portfolio-meta-field .description {
+    display: block;
+    color: #999;
+    font-size: 12px;
+    margin-top: 3px;
+}
+
+.portfolio-meta-field input[type="text"],
+.portfolio-meta-field input[type="url"],
+.portfolio-meta-field select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.portfolio-meta-field input[type="text"]:focus,
+.portfolio-meta-field input[type="url"]:focus,
+.portfolio-meta-field select:focus {
+    border-color: #4f94d4;
+    outline: none;
+    box-shadow: 0 0 5px rgba(79, 148, 212, 0.3);
+}
+
+/* Gallery Styles */
+.portfolio-gallery-container {
+    padding: 10px 0;
+}
+
+#portfolio-add-gallery {
+    margin-bottom: 15px;
+}
+
+.portfolio-gallery-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.portfolio-gallery-item {
+    position: relative;
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 5px;
+    overflow: hidden;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.portfolio-gallery-item:hover {
+    border-color: #999;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.portfolio-gallery-item img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.portfolio-remove-image {
+    width: 100%;
+    padding: 3px 5px !important;
+    font-size: 11px !important;
+    height: auto !important;
+    line-height: 1.5 !important;
+    background-color: #dc3545;
+    color: white;
+    border: none !important;
+    border-radius: 3px;
+}
+
+.portfolio-remove-image:hover {
+    background-color: #c82333;
+}
+
+/* Editor Styles */
+#wp-portfolio_project_description-wrap {
+    background: #fff;
+    border: 1px solid #ddd;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    .portfolio-gallery-list {
+        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    }
+}
+
+/* Date Input Styling */
+.portfolio-date-input {
+    font-family: 'Courier New', monospace;
+    letter-spacing: 1px;
+}
+
+/* Sortable Gallery Items */
+.portfolio-gallery-item.ui-sortable-helper {
+    opacity: 0.8;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    z-index: 10;
+}
+
+.portfolio-gallery-list.ui-sortable {
+    min-height: 100px;
+}
