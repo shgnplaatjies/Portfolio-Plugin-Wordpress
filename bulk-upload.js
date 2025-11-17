@@ -216,7 +216,8 @@ async function createProject(experience) {
     }
 
     const project = await response.json();
-    console.log(`✓ Created: ${project.title} (ID: ${project.id})`);
+    const title = typeof project.title === 'object' ? project.title.rendered : project.title;
+    console.log(`✓ Created: ${title} (ID: ${project.id})`);
     return project;
   } catch (error) {
     console.error(`✗ Error creating project "${experience.title}":`, error.message);
