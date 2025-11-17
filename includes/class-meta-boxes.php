@@ -30,15 +30,6 @@ class Portfolio_Plugin_Meta_Boxes {
         );
 
         add_meta_box(
-            'portfolio_project_content',
-            'Project Content',
-            array($this, 'render_project_content_box'),
-            'project',
-            'normal',
-            'default'
-        );
-
-        add_meta_box(
             'portfolio_project_media',
             'Media Gallery',
             array($this, 'render_project_media_box'),
@@ -79,32 +70,6 @@ class Portfolio_Plugin_Meta_Boxes {
                 placeholder="e.g., A real-time collaboration platform built with React"
             />
         </div>
-        <?php
-    }
-
-    /**
-     * Render project content meta box (rich text editor)
-     */
-    public function render_project_content_box($post) {
-        $content = get_post_meta($post->ID, '_portfolio_project_description', true);
-
-        wp_editor(
-            wp_kses_post($content),
-            'portfolio_project_description',
-            array(
-                'textarea_name' => 'portfolio_project_description',
-                'media_buttons' => true,
-                'textarea_rows' => 10,
-                'teeny'         => false,
-                'quicktags'     => true,
-                'tinymce'       => array(
-                    'toolbar1' => 'bold,italic,underline,strikethrough,|,bullist,numlist,blockquote,|,alignleft,aligncenter,alignright,|,undo,redo',
-                    'toolbar2' => 'formatselect,removeformat,|,hr,|,charmap,pastetext,pasteword',
-                ),
-            )
-        );
-        ?>
-        <p class="description">Detailed description of the project. HTML formatting is supported.</p>
         <?php
     }
 
@@ -276,10 +241,6 @@ class Portfolio_Plugin_Meta_Boxes {
 
         if (isset($_POST['portfolio_project_subtext'])) {
             update_post_meta($post_id, '_portfolio_project_subtext', sanitize_text_field($_POST['portfolio_project_subtext']));
-        }
-
-        if (isset($_POST['portfolio_project_description'])) {
-            update_post_meta($post_id, '_portfolio_project_description', wp_kses_post($_POST['portfolio_project_description']));
         }
 
         if (isset($_POST['portfolio_project_gallery'])) {
