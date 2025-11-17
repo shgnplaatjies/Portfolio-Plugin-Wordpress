@@ -50,7 +50,7 @@ class Portfolio_Plugin_Post_Type_Project {
                 'custom-fields',
                 'revisions',
             ),
-            'taxonomies'          => array(),
+            'taxonomies'          => array('category', 'post_tag'),
             'menu_icon'           => 'dashicons-briefcase',
             'hierarchical'        => false,
         ));
