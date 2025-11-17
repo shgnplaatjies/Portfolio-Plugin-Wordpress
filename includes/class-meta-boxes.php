@@ -122,6 +122,7 @@ class Portfolio_Plugin_Meta_Boxes {
     public function render_project_meta_box($post) {
         wp_nonce_field('portfolio_meta_nonce', 'portfolio_meta_nonce');
 
+        $role = get_post_meta($post->ID, '_portfolio_project_role', true);
         $company = get_post_meta($post->ID, '_portfolio_project_company', true);
         $source_url = get_post_meta($post->ID, '_portfolio_project_source_url', true);
         $date_type = get_post_meta($post->ID, '_portfolio_project_date_type', true) ?: 'single';
@@ -130,6 +131,20 @@ class Portfolio_Plugin_Meta_Boxes {
         $date_end = get_post_meta($post->ID, '_portfolio_project_date_end', true);
 
         ?>
+        <div class="portfolio-meta-field">
+            <label for="portfolio_project_role">
+                <strong>Role</strong>
+            </label>
+            <input
+                type="text"
+                id="portfolio_project_role"
+                name="portfolio_project_role"
+                value="<?php echo esc_attr($role); ?>"
+                class="widefat"
+                placeholder="e.g., Lead Developer, Full Stack Engineer"
+            />
+        </div>
+
         <div class="portfolio-meta-field">
             <label for="portfolio_project_company">
                 <strong>Company</strong>
@@ -246,6 +261,10 @@ class Portfolio_Plugin_Meta_Boxes {
         if (isset($_POST['portfolio_project_gallery'])) {
             $gallery_ids = sanitize_text_field($_POST['portfolio_project_gallery']);
             update_post_meta($post_id, '_portfolio_project_gallery', $gallery_ids);
+        }
+
+        if (isset($_POST['portfolio_project_role'])) {
+            update_post_meta($post_id, '_portfolio_project_role', sanitize_text_field($_POST['portfolio_project_role']));
         }
 
         if (isset($_POST['portfolio_project_company'])) {

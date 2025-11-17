@@ -42,6 +42,7 @@ curl -X POST https://example.com/wp-json/wp/v2/projects \
     "status": "publish",
     "meta": {
       "_portfolio_project_subtext": "Tagline",
+      "_portfolio_project_role": "Full Stack Engineer",
       "_portfolio_project_company": "Company Name",
       "_portfolio_project_source_url": "https://example.com",
       "_portfolio_project_date_type": "single",
@@ -87,6 +88,7 @@ curl -X DELETE https://example.com/wp-json/wp/v2/projects/123 \
   "link": "https://example.com/projects/project-name/",
   "meta": {
     "_portfolio_project_subtext": "Brief description",
+    "_portfolio_project_role": "Lead Developer",
     "_portfolio_project_company": "Company Name",
     "_portfolio_project_source_url": "https://example.com",
     "_portfolio_project_gallery": "123,456,789",
@@ -103,6 +105,7 @@ curl -X DELETE https://example.com/wp-json/wp/v2/projects/123 \
 | Field | Meta Key | Type |
 |-------|----------|------|
 | Subtext | `_portfolio_project_subtext` | string |
+| Role | `_portfolio_project_role` | string |
 | Company | `_portfolio_project_company` | string |
 | Source URL | `_portfolio_project_source_url` | URL |
 | Gallery Images | `_portfolio_project_gallery` | comma-separated IDs |
@@ -142,6 +145,7 @@ const response = await fetch('/wp-json/wp/v2/projects', {
     status: 'publish',
     meta: {
       '_portfolio_project_subtext': 'Tagline',
+      '_portfolio_project_role': 'Lead Developer',
       '_portfolio_project_company': 'Company',
       '_portfolio_project_source_url': 'https://example.com',
       '_portfolio_project_date_type': 'single',
