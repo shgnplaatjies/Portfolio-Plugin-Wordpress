@@ -23,24 +23,68 @@ try {
 
 const fs = require('fs');
 const path = require('path');
-const csv = require('csv-parse/sync');
-
-const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
 const WP_URL = process.env.WP_URL;
 const WP_REST_API = `${WP_URL}/wp-json/wp/v2`;
 const JWT_TOKEN = process.env.WP_JWT_TOKEN;
 const CSV_FILE = process.argv[2] || path.join(__dirname, 'projects.csv');
 
+function parseCSV(content) {
+  const lines = content.split('\n');
+  if (lines.length === 0) return [];
+
+  const headers = parseCSVLine(lines[0]);
+  const records = [];
+
+  for (let i = 1; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (!line) continue;
+
+    const values = parseCSVLine(line);
+    const record = {};
+
+    headers.forEach((header, index) => {
+      record[header] = values[index] || '';
+    });
+
+    records.push(record);
+  }
+
+  return records;
+}
+
+function parseCSVLine(line) {
+  const result = [];
+  let current = '';
+  let insideQuotes = false;
+
+  for (let i = 0; i < line.length; i++) {
+    const char = line[i];
+    const nextChar = line[i + 1];
+
+    if (char === '"') {
+      if (insideQuotes && nextChar === '"') {
+        current += '"';
+        i++;
+      } else {
+        insideQuotes = !insideQuotes;
+      }
+    } else if (char === ',' && !insideQuotes) {
+      result.push(current.trim());
+      current = '';
+    } else {
+      current += char;
+    }
+  }
+
+  result.push(current.trim());
+  return result;
+}
+
 function loadProjectsFromCSV(filePath) {
   try {
     const content = fs.readFileSync(filePath, 'utf8');
-    const records = csv.parse(content, {
-      columns: true,
-      skip_empty_lines: true,
-      trim: true,
-      quote: '"'
-    });
+    const records = parseCSV(content);
 
     return records.map(record => ({
       title: record.title,
@@ -58,6 +102,46 @@ function loadProjectsFromCSV(filePath) {
     console.error(`Error reading CSV file: ${error.message}`);
     process.exit(1);
   }
+}
+
+async function fetch(url, options = {}) {
+  const https = require('https');
+  const http = require('http');
+
+  return new Promise((resolve, reject) => {
+    const urlObj = new URL(url);
+    const client = urlObj.protocol === 'https:' ? https : http;
+
+    const reqOptions = {
+      method: options.method || 'GET',
+      headers: options.headers || {}
+    };
+
+    const req = client.request(url, reqOptions, (res) => {
+      let data = '';
+
+      res.on('data', chunk => {
+        data += chunk;
+      });
+
+      res.on('end', () => {
+        resolve({
+          ok: res.statusCode >= 200 && res.statusCode < 300,
+          status: res.statusCode,
+          json: () => Promise.resolve(JSON.parse(data)),
+          text: () => Promise.resolve(data)
+        });
+      });
+    });
+
+    req.on('error', reject);
+
+    if (options.body) {
+      req.write(options.body);
+    }
+
+    req.end();
+  });
 }
 
 async function getOrCreateTag(tagName) {
