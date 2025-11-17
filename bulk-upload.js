@@ -157,7 +157,7 @@ async function getOrCreateTag(tagName) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${JWT_TOKEN}`
+        'Authorization': `Basic ${JWT_TOKEN}`
       },
       body: JSON.stringify({
         name: tagName
@@ -206,7 +206,7 @@ async function createProject(experience) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${JWT_TOKEN}`
+        'Authorization': `Basic ${JWT_TOKEN}`
       },
       body: JSON.stringify(projectData)
     });
