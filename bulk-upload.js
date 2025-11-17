@@ -135,6 +135,10 @@ async function fetch(url, options = {}) {
     });
 
     req.on('error', reject);
+    req.on('timeout', () => {
+      req.destroy();
+      reject(new Error(`Request timeout for ${url}`));
+    });
 
     if (options.body) {
       req.write(options.body);
@@ -171,7 +175,7 @@ async function getOrCreateTag(tagName) {
     const newTag = await createResponse.json();
     return newTag.id;
   } catch (error) {
-    console.error(`Error processing tag "${tagName}":`, error.message);
+    console.error(`  Error processing tag "${tagName}":`, error.message);
     return null;
   }
 }
@@ -217,10 +221,10 @@ async function createProject(experience) {
 
     const project = await response.json();
     const title = typeof project.title === 'object' ? project.title.rendered : project.title;
-    console.log(`✓ Created: ${title} (ID: ${project.id})`);
+    console.log(`Created: ${title} (ID: ${project.id})`);
     return project;
   } catch (error) {
-    console.error(`✗ Error creating project "${experience.title}":`, error.message);
+    console.error(`Error creating project "${experience.title}":`, error.message);
     return null;
   }
 }
@@ -254,7 +258,7 @@ async function main() {
     await new Promise(resolve => setTimeout(resolve, 500));
   }
 
-  console.log(`\n✓ Upload complete: ${successCount}/${projects.length} projects created successfully`);
+  console.log(`\nUpload complete: ${successCount}/${projects.length} projects created successfully`);
 }
 
 main().catch(console.error);
