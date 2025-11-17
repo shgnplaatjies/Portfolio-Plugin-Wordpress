@@ -199,14 +199,12 @@ class Portfolio_Plugin_Meta_Boxes {
                 <strong>Start Date</strong>
             </label>
             <input
-                type="text"
+                type="date"
                 id="portfolio_project_date_start"
                 name="portfolio_project_date_start"
                 value="<?php echo esc_attr($date_start); ?>"
                 class="widefat portfolio-date-input"
-                placeholder="mm/yyyy"
             />
-            <small class="description">Enter date in the format you selected above</small>
         </div>
 
         <div class="portfolio-meta-field" id="portfolio-date-end-field" style="display: <?php echo $date_type === 'range' ? 'block' : 'none'; ?>;">
@@ -214,12 +212,11 @@ class Portfolio_Plugin_Meta_Boxes {
                 <strong>End Date</strong>
             </label>
             <input
-                type="text"
+                type="date"
                 id="portfolio_project_date_end"
                 name="portfolio_project_date_end"
                 value="<?php echo esc_attr($date_end); ?>"
                 class="widefat portfolio-date-input"
-                placeholder="mm/yyyy"
             />
             <small class="description">Leave empty for current/ongoing</small>
         </div>
