@@ -45,20 +45,12 @@ add_action('rest_api_init', function() {
     );
 
     foreach ($meta_fields as $field) {
-        register_rest_field('project', $field, array(
-            'get_callback' => function($object) use ($field) {
-                return get_post_meta($object['id'], $field, true);
-            },
-            'update_callback' => function($value, $object) use ($field) {
-                if ($value === null || $value === '') {
-                    return delete_post_meta($object->ID, $field);
-                }
-                return update_post_meta($object->ID, $field, $value);
-            },
-            'schema' => array(
-                'type' => 'string',
-                'context' => array('view', 'edit')
-            )
+        register_meta('post', $field, array(
+            'object_subtype' => 'project',
+            'type' => 'string',
+            'single' => true,
+            'show_in_rest' => true,
+            'sanitize_callback' => 'sanitize_text_field'
         ));
     }
 });
