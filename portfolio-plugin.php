@@ -23,7 +23,7 @@ define('PORTFOLIO_PLUGIN_VERSION', '1.0.0');
 require_once PORTFOLIO_PLUGIN_DIR . 'includes/class-post-type-project.php';
 require_once PORTFOLIO_PLUGIN_DIR . 'includes/class-meta-boxes.php';
 
-add_action('plugins_loaded', function() {
+add_action('init', function() {
     $project_post_type = new Portfolio_Plugin_Post_Type_Project();
     $project_post_type->register();
 
