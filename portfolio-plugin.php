@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Show Don't Tell - Portfolio Plugin
  * Plugin URI: https://shaganplaatjies.co.za/portfolio-plugin
- * Description: A custom WordPress plugin providing portfolio/career management post types for Software Engineers and other professionals
+ * Description: A custom WordPress plugin providing portfolio/career management post types for professionals
  * Version: 0.0.1
  * Author: Shagan Plaatjies
  * Author URI: https://shaganplaatjies.co.za
