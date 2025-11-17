@@ -31,6 +31,38 @@ add_action('init', function() {
     $meta_boxes->register();
 });
 
+add_action('rest_api_init', function() {
+    $meta_fields = array(
+        '_portfolio_project_subtext',
+        '_portfolio_project_role',
+        '_portfolio_project_company',
+        '_portfolio_project_source_url',
+        '_portfolio_project_gallery',
+        '_portfolio_project_date_type',
+        '_portfolio_project_date_format',
+        '_portfolio_project_date_start',
+        '_portfolio_project_date_end'
+    );
+
+    foreach ($meta_fields as $field) {
+        register_rest_field('project', $field, array(
+            'get_callback' => function($object) use ($field) {
+                return get_post_meta($object['id'], $field, true);
+            },
+            'update_callback' => function($value, $object) use ($field) {
+                if ($value === null || $value === '') {
+                    return delete_post_meta($object->ID, $field);
+                }
+                return update_post_meta($object->ID, $field, $value);
+            },
+            'schema' => array(
+                'type' => 'string',
+                'context' => array('view', 'edit')
+            )
+        ));
+    }
+});
+
 register_activation_hook(__FILE__, function() {
     $project_post_type = new Portfolio_Plugin_Post_Type_Project();
     $project_post_type->register();
