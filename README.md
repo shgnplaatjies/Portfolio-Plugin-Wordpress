@@ -83,21 +83,21 @@ curl https://example.com/wp-json/wp/v2/projects/123
 curl -X POST https://example.com/wp-json/wp/v2/projects \
   -H "Content-Type: application/json" \
   -H "Authorization: Basic YOUR_BASE64_CREDENTIALS" \
-  -d '{
-    "title": "Project Title",
-    "content": "<p>Description...</p>",
-    "status": "publish",
-    "meta": {
-      "_portfolio_project_subtext": "Tagline",
-      "_portfolio_project_role": "Full Stack Engineer",
-      "_portfolio_project_company": "Company Name",
-      "_portfolio_project_source_url": "https://example.com",
-      "_portfolio_project_date_type": "range",
-      "_portfolio_project_date_format": "mm/yyyy",
-      "_portfolio_project_date_start": "2024-01-01",
-      "_portfolio_project_date_end": "2024-12-31"
+  -d "{
+    \"title\": \"Project Title\",
+    \"content\": \"<p>Description...</p>\",
+    \"status\": \"publish\",
+    \"meta\": {
+      \"_portfolio_project_subtext\": \"Tagline\",
+      \"_portfolio_project_role\": \"Full Stack Engineer\",
+      \"_portfolio_project_company\": \"Company Name\",
+      \"_portfolio_project_source_url\": \"https://example.com\",
+      \"_portfolio_project_date_type\": \"range\",
+      \"_portfolio_project_date_format\": \"mm/yyyy\",
+      \"_portfolio_project_date_start\": \"2024-01-01\",
+      \"_portfolio_project_date_end\": \"2024-12-31\"
     }
-  }'
+  }"
 ```
 
 ### Update Project (Requires Authentication)
@@ -106,12 +106,12 @@ curl -X POST https://example.com/wp-json/wp/v2/projects \
 curl -X POST https://example.com/wp-json/wp/v2/projects/123 \
   -H "Content-Type: application/json" \
   -H "Authorization: Basic YOUR_BASE64_CREDENTIALS" \
-  -d '{
-    "title": "Updated Title",
-    "meta": {
-      "_portfolio_project_company": "New Company"
+  -d "{
+    \"title\": \"Updated Title\",
+    \"meta\": {
+      \"_portfolio_project_company\": \"New Company\"
     }
-  }'
+  }"
 ```
 
 ### Delete Project (Requires Authentication)
