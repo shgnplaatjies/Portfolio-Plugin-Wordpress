@@ -25,11 +25,21 @@ $base64 = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes
 Write-Host $base64
 ```
 
-3. Prepare your CSV file with this format:
-```csv
-title,company,role,dateStart,dateEnd,dateType,dateFormat,subtext,content,skills
-"Project Title","Company","Your Role","2025-01-01","2025-12-31","range","mm/yyyy","Brief description","<p>Full description</p>","Skill1, Skill2, Skill3"
+3. Check available categories and tags:
+```bash
+node check-taxonomies.js
 ```
+
+This will display all available categories and tags with their IDs. Use these IDs in your CSV.
+
+4. Prepare your CSV file with this format:
+```csv
+title,company,role,dateStart,dateEnd,dateType,dateFormat,subtext,content,skills,categories,tags
+"Project Title","Company","Your Role","2025-01-01","2025-12-31","range","mm/yyyy","Brief description","<p>Full description</p>","Skill1, Skill2, Skill3","41","42,43,48"
+```
+
+- `categories` - Comma-separated category IDs (optional)
+- `tags` - Comma-separated tag IDs (optional)
 
 ### Run the Upload
 
@@ -70,6 +80,8 @@ Query parameters:
 - `search=keyword` - Search projects
 - `orderby=date&order=asc` - Sort by date or title
 - `status=publish` - Filter by status
+- `categories=41` - Filter by category ID
+- `tags=42,43` - Filter by tag IDs (comma-separated)
 
 ### Get Single Project
 
@@ -87,6 +99,8 @@ curl -X POST https://example.com/wp-json/wp/v2/projects \
     \"title\": \"Project Title\",
     \"content\": \"<p>Description...</p>\",
     \"status\": \"publish\",
+    \"categories\": [41],
+    \"tags\": [42, 43, 48],
     \"meta\": {
       \"_portfolio_project_subtext\": \"Tagline\",
       \"_portfolio_project_role\": \"Full Stack Engineer\",
@@ -148,6 +162,25 @@ curl -X DELETE https://example.com/wp-json/wp/v2/projects/123 \
 }
 ```
 
+## Categories and Tags
+
+Projects support WordPress categories and tags for organization:
+
+- **Categories** - Organize projects by type (e.g., "Web Development", "Work Experience")
+- **Tags** - Label projects with technologies and skills used
+
+Use `check-taxonomies.js` to see available categories and tags with their IDs.
+
+### Filter by Category/Tag
+
+```bash
+# Get projects in category 41
+curl https://example.com/wp-json/wp/v2/projects?categories=41
+
+# Get projects with tags 42 and 43
+curl https://example.com/wp-json/wp/v2/projects?tags=42,43
+```
+
 ## Meta Fields
 
 | Field | Meta Key | Type | Notes |
@@ -191,6 +224,8 @@ const response = await fetch('/wp-json/wp/v2/projects', {
     title: 'New Project',
     content: '<p>Description</p>',
     status: 'publish',
+    categories: [41],
+    tags: [42, 43, 48],
     meta: {
       '_portfolio_project_subtext': 'Tagline',
       '_portfolio_project_role': 'Lead Developer',
