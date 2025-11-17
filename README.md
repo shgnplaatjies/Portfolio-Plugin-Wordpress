@@ -7,9 +7,56 @@ A WordPress plugin that provides a "Projects" custom post type accessible via RE
 1. Download or clone this plugin into `wp-content/plugins/`
 2. Activate the plugin through WordPress admin
 
+## Bulk Upload
+
+Use the included `bulk-upload.js` script to create multiple projects from a CSV file.
+
+### Setup
+
+1. Create a `.env` file in the plugin directory:
+```
+WP_URL=https://your-site.com
+WP_JWT_TOKEN=your_base64_encoded_username:password
+```
+
+2. Generate the JWT token by base64 encoding your WordPress credentials:
+```powershell
+$base64 = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes("username:password"))
+Write-Host $base64
+```
+
+3. Prepare your CSV file with this format:
+```csv
+title,company,role,dateStart,dateEnd,dateType,dateFormat,subtext,content,skills
+"Project Title","Company","Your Role","2025-01-01","2025-12-31","range","mm/yyyy","Brief description","<p>Full description</p>","Skill1, Skill2, Skill3"
+```
+
+### Run the Upload
+
+```bash
+node bulk-upload.js
+```
+
+Or with a custom CSV file:
+```bash
+node bulk-upload.js path/to/custom.csv
+```
+
+**Note**: No npm installation required. The script uses only Node.js built-in modules.
+
 ## REST API
 
 Base endpoint: `/wp-json/wp/v2/projects`
+
+### Authentication
+
+The plugin uses HTTP Basic Authentication with WordPress application passwords.
+
+Create an application password in WordPress admin → Users → Your Profile, then base64 encode as `username:password`:
+
+```powershell
+$base64 = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes("username:password"))
+```
 
 ### Get All Projects
 
@@ -35,7 +82,7 @@ curl https://example.com/wp-json/wp/v2/projects/123
 ```bash
 curl -X POST https://example.com/wp-json/wp/v2/projects \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Authorization: Basic YOUR_BASE64_CREDENTIALS" \
   -d '{
     "title": "Project Title",
     "content": "<p>Description...</p>",
@@ -45,9 +92,10 @@ curl -X POST https://example.com/wp-json/wp/v2/projects \
       "_portfolio_project_role": "Full Stack Engineer",
       "_portfolio_project_company": "Company Name",
       "_portfolio_project_source_url": "https://example.com",
-      "_portfolio_project_date_type": "single",
+      "_portfolio_project_date_type": "range",
       "_portfolio_project_date_format": "mm/yyyy",
-      "_portfolio_project_date_start": "11/2024"
+      "_portfolio_project_date_start": "2024-01-01",
+      "_portfolio_project_date_end": "2024-12-31"
     }
   }'
 ```
@@ -57,7 +105,7 @@ curl -X POST https://example.com/wp-json/wp/v2/projects \
 ```bash
 curl -X POST https://example.com/wp-json/wp/v2/projects/123 \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Authorization: Basic YOUR_BASE64_CREDENTIALS" \
   -d '{
     "title": "Updated Title",
     "meta": {
@@ -70,7 +118,7 @@ curl -X POST https://example.com/wp-json/wp/v2/projects/123 \
 
 ```bash
 curl -X DELETE https://example.com/wp-json/wp/v2/projects/123 \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+  -H "Authorization: Basic YOUR_BASE64_CREDENTIALS"
 ```
 
 ## Response Format
@@ -94,25 +142,25 @@ curl -X DELETE https://example.com/wp-json/wp/v2/projects/123 \
     "_portfolio_project_gallery": "123,456,789",
     "_portfolio_project_date_type": "range",
     "_portfolio_project_date_format": "mm/yyyy",
-    "_portfolio_project_date_start": "01/2024",
-    "_portfolio_project_date_end": "11/2024"
+    "_portfolio_project_date_start": "2024-01-01",
+    "_portfolio_project_date_end": "2024-12-31"
   }
 }
 ```
 
 ## Meta Fields
 
-| Field | Meta Key | Type |
-|-------|----------|------|
-| Subtext | `_portfolio_project_subtext` | string |
-| Role | `_portfolio_project_role` | string |
-| Company | `_portfolio_project_company` | string |
-| Source URL | `_portfolio_project_source_url` | URL |
-| Gallery Images | `_portfolio_project_gallery` | comma-separated IDs |
-| Date Type | `_portfolio_project_date_type` | `single` \| `range` |
-| Date Format | `_portfolio_project_date_format` | `yyyy` \| `mm/yyyy` \| `dd/mm/yyyy` |
-| Start Date | `_portfolio_project_date_start` | string |
-| End Date | `_portfolio_project_date_end` | string |
+| Field | Meta Key | Type | Notes |
+|-------|----------|------|-------|
+| Subtext | `_portfolio_project_subtext` | string | Brief tagline |
+| Role | `_portfolio_project_role` | string | Your position/role |
+| Company | `_portfolio_project_company` | string | Organization name |
+| Source URL | `_portfolio_project_source_url` | URL | Live demo or repo link |
+| Gallery Images | `_portfolio_project_gallery` | comma-separated IDs | Media attachment IDs |
+| Date Type | `_portfolio_project_date_type` | `single` \| `range` | Single date or date range |
+| Date Format | `_portfolio_project_date_format` | `yyyy` \| `mm/yyyy` \| `dd/mm/yyyy` | Display format |
+| Start Date | `_portfolio_project_date_start` | YYYY-MM-DD | Project start date |
+| End Date | `_portfolio_project_date_end` | YYYY-MM-DD | Project end date (optional) |
 
 ## JavaScript Examples
 
@@ -137,7 +185,7 @@ const response = await fetch('/wp-json/wp/v2/projects', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
-    'Authorization': `Bearer ${token}`
+    'Authorization': `Basic ${btoa('username:password')}`
   },
   body: JSON.stringify({
     title: 'New Project',
@@ -148,9 +196,10 @@ const response = await fetch('/wp-json/wp/v2/projects', {
       '_portfolio_project_role': 'Lead Developer',
       '_portfolio_project_company': 'Company',
       '_portfolio_project_source_url': 'https://example.com',
-      '_portfolio_project_date_type': 'single',
+      '_portfolio_project_date_type': 'range',
       '_portfolio_project_date_format': 'mm/yyyy',
-      '_portfolio_project_date_start': '11/2024'
+      '_portfolio_project_date_start': '2024-01-01',
+      '_portfolio_project_date_end': '2024-12-31'
     }
   })
 });
@@ -165,7 +214,25 @@ const galleryIds = project.meta._portfolio_project_gallery.split(',');
 const images = await fetch(`/wp-json/wp/v2/media?include=${galleryIds.join(',')}`).then(r => r.json());
 ```
 
+## Deployment
+
+The plugin includes automated GitHub Actions deployment to your WordPress hosting via FTP.
+
+### Setup
+
+1. Add these secrets to your GitHub repository:
+   - `FTP_HOST` - Your FTP server hostname
+   - `FTP_USER` - FTP username
+   - `FTP_PASS` - FTP password
+
+2. Commits to the `main` branch automatically deploy to your server
+
+### Deployment Directory
+
+Projects are deployed to: `/wp-content/plugins/portfolio-plugin/`
+
 ## Requirements
 
 - WordPress 6.0+
 - PHP 7.4+
+- Node.js (for bulk upload script)
