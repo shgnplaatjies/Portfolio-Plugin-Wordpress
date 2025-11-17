@@ -6,7 +6,7 @@ A custom WordPress plugin providing professional portfolio/career management pos
 
 ### Project Post Type
 
-A comprehensive custom post type for showcasing professional projects with the following features:
+A custom post type for showcasing professional projects with the following features:
 
 #### Required Fields
 - **Title** - The name of the project
@@ -479,23 +479,3 @@ To add additional post types in the future:
 - **REST API Support**: Yes (`/wp-json/wp/v2/projects`)
 - **Taxonomy Support**: None (extensible)
 - **Supports**: Title, Editor, Excerpt, Featured Image, Custom Fields, Revisions
-
-## Future Enhancements
-
-Potential features for future versions:
-
-- Additional post types (Experience, Education, Skills)
-- Taxonomies for categorizing projects
-- Built-in templates/theme integration
-- Project filtering and search widgets
-- Export functionality
-- Social media integration
-
-## License
-
-This plugin is released under the GPL v2 or later license.
-
----
-
-**Version**: 1.0.0
-**Last Updated**: November 2024
