@@ -20,7 +20,7 @@ jobs:
           username: ${{ secrets.FTP_USER }}
           password: ${{ secrets.FTP_PASS }}
           protocol: ftps
-          server-dir: /blog.shaganplaatjies.co.za/wp-content/plugins/portfolio-plugin/
+          server-dir: /staging.blog.shaganplaatjies.co.za/wp-content/plugins/portfolio-plugin/
           exclude: |
             **/.git/**
             **/.github/**
