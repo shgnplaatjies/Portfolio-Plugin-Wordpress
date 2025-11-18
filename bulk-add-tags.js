@@ -1,6 +1,28 @@
+#!/usr/bin/env node
+
+try {
+  const fs = require('fs');
+  const path = require('path');
+  const envPath = path.join(__dirname, '.env');
+
+  if (fs.existsSync(envPath)) {
+    const envContent = fs.readFileSync(envPath, 'utf8');
+    envContent.split('\n').forEach(line => {
+      const trimmedLine = line.trim();
+      if (trimmedLine && !trimmedLine.startsWith('#')) {
+        const [key, ...valueParts] = trimmedLine.split('=');
+        if (key) {
+          process.env[key.trim()] = valueParts.join('=').trim();
+        }
+      }
+    });
+  }
+} catch (error) {
+  console.warn('Warning: Could not load .env file');
+}
+
 const fs = require('fs');
 const path = require('path');
-require('dotenv').config();
 
 const WP_URL = process.env.WP_URL;
 const JWT_TOKEN = process.env.WP_JWT_TOKEN;
