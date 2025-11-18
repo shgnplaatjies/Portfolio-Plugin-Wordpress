@@ -150,25 +150,25 @@ async function fetch(url, options = {}) {
   });
 }
 
-async function createProject(experience) {
+async function createProject(project) {
   try {
-    const allTags = experience.tags;
+    const allTags = project.tags;
 
     const projectData = {
-      title: `${experience.title} at ${experience.company}`,
-      content: experience.content,
+      title: `${project.title} at ${project.company}`,
+      content: project.content,
       status: 'publish',
-      ...(experience.categories.length > 0 && { categories: experience.categories }),
+      ...(project.categories.length > 0 && { categories: project.categories }),
       ...(allTags.length > 0 && { tags: allTags }),
       meta: {
-        '_portfolio_project_subtext': experience.subtext,
-        '_portfolio_project_role': experience.role,
-        '_portfolio_project_company': experience.company,
-        '_portfolio_project_company_url': experience.companyUrl,
-        '_portfolio_project_date_type': experience.dateType,
-        '_portfolio_project_date_format': experience.dateFormat,
-        '_portfolio_project_date_start': experience.dateStart,
-        ...(experience.dateEnd && { '_portfolio_project_date_end': experience.dateEnd })
+        '_portfolio_project_subtext': project.subtext,
+        '_portfolio_project_role': project.role,
+        '_portfolio_project_company': project.company,
+        ...(project.companyUrl && { '_portfolio_project_company_url': project.companyUrl }),
+        '_portfolio_project_date_type': project.dateType,
+        '_portfolio_project_date_format': project.dateFormat,
+        '_portfolio_project_date_start': project.dateStart,
+        ...(project.dateEnd && { '_portfolio_project_date_end': project.dateEnd })
       }
     };
 
@@ -190,7 +190,7 @@ async function createProject(experience) {
     console.log(`Created: ${title} (ID: ${project.id})`);
     return project;
   } catch (error) {
-    console.error(`Error creating project "${experience.title}":`, error.message);
+    console.error(`Error creating project "${project.title}":`, error.message);
     return null;
   }
 }
@@ -216,8 +216,8 @@ async function main() {
 
   let successCount = 0;
 
-  for (const experience of projects) {
-    const result = await createProject(experience);
+  for (const project of projects) {
+    const result = await createProject(project);
     if (result) {
       successCount++;
     }
