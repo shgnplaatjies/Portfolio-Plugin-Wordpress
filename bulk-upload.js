@@ -96,6 +96,7 @@ function loadProjectsFromCSV(filePath) {
       dateFormat: record.dateFormat || 'mm/yyyy',
       subtext: record.subtext,
       content: record.content,
+      companyUrl: record.company_url || '',
       categories: record.categories ? record.categories.split(',').map(c => parseInt(c.trim())) : [],
       tags: record.tags ? record.tags.split(',').map(t => parseInt(t.trim())) : []
     }));
@@ -163,6 +164,7 @@ async function createProject(experience) {
         '_portfolio_project_subtext': experience.subtext,
         '_portfolio_project_role': experience.role,
         '_portfolio_project_company': experience.company,
+        '_portfolio_project_company_url': experience.companyUrl,
         '_portfolio_project_date_type': experience.dateType,
         '_portfolio_project_date_format': experience.dateFormat,
         '_portfolio_project_date_start': experience.dateStart,

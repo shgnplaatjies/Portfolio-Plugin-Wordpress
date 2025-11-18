@@ -34,12 +34,13 @@ This will display all available categories and tags with their IDs. Use these ID
 
 4. Prepare your CSV file with this format:
 ```csv
-title,company,role,dateStart,dateEnd,dateType,dateFormat,subtext,content,skills,categories,tags
-"Project Title","Company","Your Role","2025-01-01","2025-12-31","range","mm/yyyy","Brief description","<p>Full description</p>","Skill1, Skill2, Skill3","41","42,43,48"
+title,company,role,dateStart,dateEnd,dateType,dateFormat,subtext,content,categories,tags,company_url
+"Project Title","Company","Your Role","2025-01-01","2025-12-31","range","mm/yyyy","Brief description","<p>Full description</p>","41","42,43,48","https://example.com"
 ```
 
 - `categories` - Comma-separated category IDs (optional)
 - `tags` - Comma-separated tag IDs (optional)
+- `company_url` - Company website URL (optional)
 
 ### Run the Upload
 
@@ -186,6 +187,7 @@ curl https://example.com/wp-json/wp/v2/projects?tags=42,43
 | Subtext | `_portfolio_project_subtext` | string | Brief tagline |
 | Role | `_portfolio_project_role` | string | Your position/role |
 | Company | `_portfolio_project_company` | string | Organization name |
+| Company URL | `_portfolio_project_company_url` | URL | Company website |
 | Source URL | `_portfolio_project_source_url` | URL | Live demo or repo link |
 | Gallery Images | `_portfolio_project_gallery` | comma-separated IDs | Media attachment IDs |
 | Date Type | `_portfolio_project_date_type` | `single` \| `range` | Single date or date range |

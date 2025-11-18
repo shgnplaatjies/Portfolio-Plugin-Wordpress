@@ -36,6 +36,7 @@ add_action('rest_api_init', function() {
         '_portfolio_project_subtext',
         '_portfolio_project_role',
         '_portfolio_project_company',
+        '_portfolio_project_company_url',
         '_portfolio_project_source_url',
         '_portfolio_project_gallery',
         '_portfolio_project_date_type',
