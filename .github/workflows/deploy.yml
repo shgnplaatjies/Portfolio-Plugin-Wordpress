@@ -26,3 +26,6 @@ jobs:
             **/.github/**
             .gitignore
             README.md
+            check-taxonomies.js
+            bulk-upload.js
+            bulk-add-tags.js
