@@ -1,6 +1,6 @@
 # Portfolio Plugin for WordPress
 
-A WordPress plugin that provides a "Projects" custom post type accessible via REST API.
+A WordPress plugin that provides a custom post type for portfolio entries with REST API access.
 
 ## Installation
 
@@ -164,20 +164,18 @@ curl -X DELETE https://example.com/wp-json/wp/v2/projects/123 \
 
 ## Categories and Tags
 
-Projects support WordPress categories and tags for organization:
+Use WordPress categories and tags to organize portfolio entries:
 
-- **Categories** - Organize projects by type (e.g., "Web Development", "Work Experience")
-- **Tags** - Label projects with technologies and skills used
+- **Categories** - Organize entries by type, domain, or any custom grouping
+- **Tags** - Label entries with technologies, skills, and topics
 
 Use `check-taxonomies.js` to see available categories and tags with their IDs.
 
 ### Filter by Category/Tag
 
 ```bash
-# Get projects in category 41
 curl https://example.com/wp-json/wp/v2/projects?categories=41
 
-# Get projects with tags 42 and 43
 curl https://example.com/wp-json/wp/v2/projects?tags=42,43
 ```
 

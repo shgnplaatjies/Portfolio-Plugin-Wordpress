@@ -1,24 +1,13 @@
 <?php
-/**
- * Meta Boxes for Project Post Type
- *
- * Handles the registration and rendering of meta boxes for the Project post type
- */
 
 class Portfolio_Plugin_Meta_Boxes {
 
-    /**
-     * Register all meta boxes for the Project post type
-     */
     public function register() {
         add_action('add_meta_boxes_project', array($this, 'add_meta_boxes'));
         add_action('save_post_project', array($this, 'save_meta_boxes'), 10, 2);
         add_action('admin_enqueue_scripts', array($this, 'enqueue_media_scripts'));
     }
 
-    /**
-     * Add meta boxes to the Project post type
-     */
     public function add_meta_boxes() {
         add_meta_box(
             'portfolio_project_details',
@@ -48,9 +37,6 @@ class Portfolio_Plugin_Meta_Boxes {
         );
     }
 
-    /**
-     * Render project details meta box (subtext)
-     */
     public function render_project_details_box($post) {
         wp_nonce_field('portfolio_project_nonce', 'portfolio_project_nonce');
 
@@ -73,9 +59,6 @@ class Portfolio_Plugin_Meta_Boxes {
         <?php
     }
 
-    /**
-     * Render media gallery meta box
-     */
     public function render_project_media_box($post) {
         wp_nonce_field('portfolio_media_nonce', 'portfolio_media_nonce');
 
@@ -116,9 +99,6 @@ class Portfolio_Plugin_Meta_Boxes {
         <?php
     }
 
-    /**
-     * Render additional meta information (company, source URL, time period)
-     */
     public function render_project_meta_box($post) {
         wp_nonce_field('portfolio_meta_nonce', 'portfolio_meta_nonce');
 
@@ -235,9 +215,6 @@ class Portfolio_Plugin_Meta_Boxes {
         <?php
     }
 
-    /**
-     * Save meta boxes data
-     */
     public function save_meta_boxes($post_id, $post) {
         if (!isset($_POST['portfolio_project_nonce']) || !wp_verify_nonce($_POST['portfolio_project_nonce'], 'portfolio_project_nonce')) {
             return;
@@ -289,9 +266,6 @@ class Portfolio_Plugin_Meta_Boxes {
         }
     }
 
-    /**
-     * Enqueue media scripts for gallery functionality
-     */
     public function enqueue_media_scripts() {
         $current_screen = get_current_screen();
 

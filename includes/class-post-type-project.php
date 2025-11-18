@@ -1,15 +1,7 @@
 <?php
-/**
- * Project Post Type Registration
- *
- * Handles the registration and setup of the Project custom post type
- */
 
 class Portfolio_Plugin_Post_Type_Project {
 
-    /**
-     * Register the Project custom post type
-     */
     public function register() {
         register_post_type('project', array(
             'labels' => array(
