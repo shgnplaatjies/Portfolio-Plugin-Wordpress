@@ -96,7 +96,8 @@ function loadProjectsFromCSV(filePath) {
       dateFormat: record.dateFormat || 'mm/yyyy',
       subtext: record.subtext,
       content: record.content,
-      skills: record.skills ? record.skills.split(',').map(s => s.trim()) : []
+      categories: record.categories ? record.categories.split(',').map(c => parseInt(c.trim())) : [],
+      tags: record.tags ? record.tags.split(',').map(t => parseInt(t.trim())) : []
     }));
   } catch (error) {
     console.error(`Error reading CSV file: ${error.message}`);
@@ -148,53 +149,16 @@ async function fetch(url, options = {}) {
   });
 }
 
-async function getOrCreateTag(tagName) {
-  try {
-    const response = await fetch(`${WP_REST_API}/tags?search=${encodeURIComponent(tagName)}`);
-    const tags = await response.json();
-
-    if (tags.length > 0) {
-      return tags[0].id;
-    }
-
-    const createResponse = await fetch(`${WP_REST_API}/tags`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Basic ${JWT_TOKEN}`
-      },
-      body: JSON.stringify({
-        name: tagName
-      })
-    });
-
-    if (!createResponse.ok) {
-      throw new Error(`Failed to create tag: ${await createResponse.text()}`);
-    }
-
-    const newTag = await createResponse.json();
-    return newTag.id;
-  } catch (error) {
-    console.error(`  Error processing tag "${tagName}":`, error.message);
-    return null;
-  }
-}
-
 async function createProject(experience) {
   try {
-    const tagIds = [];
-    for (const skill of experience.skills) {
-      const tagId = await getOrCreateTag(skill);
-      if (tagId) {
-        tagIds.push(tagId);
-      }
-    }
+    const allTags = experience.tags;
 
     const projectData = {
       title: `${experience.title} at ${experience.company}`,
       content: experience.content,
       status: 'publish',
-      tags: tagIds,
+      ...(experience.categories.length > 0 && { categories: experience.categories }),
+      ...(allTags.length > 0 && { tags: allTags }),
       meta: {
         '_portfolio_project_subtext': experience.subtext,
         '_portfolio_project_role': experience.role,
