@@ -164,7 +164,7 @@ async function createProject(project) {
         '_portfolio_project_subtext': project.subtext,
         '_portfolio_project_role': project.role,
         '_portfolio_project_company': project.company,
-        '_portfolio_project_company_url': project.companyUrl,
+        ...(project.companyUrl && { '_portfolio_project_company_url': project.companyUrl }),
         '_portfolio_project_date_type': project.dateType,
         '_portfolio_project_date_format': project.dateFormat,
         '_portfolio_project_date_start': project.dateStart,
