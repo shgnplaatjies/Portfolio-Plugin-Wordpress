@@ -109,7 +109,29 @@ function loadMediaGallery() {
         }).filter(id => !isNaN(id));
 
         if (ids.length > 0) {
-          mediaMap[projectName.toLowerCase()] = ids.join(',');
+          mediaMap[projectName.toLowerCase()] = {
+            gallery: ids.join(','),
+            featured: null
+          };
+        }
+      }
+
+      const featuredDir = path.join(projectPath, 'featured');
+      if (fs.existsSync(featuredDir)) {
+        const featuredFiles = fs.readdirSync(featuredDir).filter(f => {
+          const ext = path.extname(f).toLowerCase();
+          return ['.jpg', '.jpeg', '.png', '.gif', '.webp'].includes(ext);
+        });
+
+        if (featuredFiles.length > 0) {
+          const name = path.parse(featuredFiles[0]).name;
+          const featuredId = parseInt(name);
+          if (!isNaN(featuredId)) {
+            if (!mediaMap[projectName.toLowerCase()]) {
+              mediaMap[projectName.toLowerCase()] = { gallery: '', featured: null };
+            }
+            mediaMap[projectName.toLowerCase()].featured = featuredId;
+          }
         }
       }
     });
@@ -127,21 +149,25 @@ function loadProjectsFromCSV(filePath) {
     const records = parseCSV(content);
     const mediaMap = loadMediaGallery();
 
-    return records.map(record => ({
-      title: record.title,
-      company: record.company,
-      role: record.role,
-      dateStart: record.dateStart,
-      dateEnd: record.dateEnd || null,
-      dateType: record.dateType || 'single',
-      dateFormat: record.dateFormat || 'mm/yyyy',
-      subtext: record.subtext,
-      content: record.content,
-      companyUrl: record.company_url || '',
-      gallery: mediaMap[record.company.toLowerCase()] || '',
-      categories: record.categories ? record.categories.split(',').map(c => parseInt(c.trim())) : [],
-      tags: record.tags ? record.tags.split(',').map(t => parseInt(t.trim())) : []
-    }));
+    return records.map(record => {
+      const companyMedia = mediaMap[record.company.toLowerCase()] || { gallery: '', featured: null };
+      return {
+        title: record.title,
+        company: record.company,
+        role: record.role,
+        dateStart: record.dateStart,
+        dateEnd: record.dateEnd || null,
+        dateType: record.dateType || 'single',
+        dateFormat: record.dateFormat || 'mm/yyyy',
+        subtext: record.subtext,
+        content: record.content,
+        companyUrl: record.company_url || '',
+        gallery: companyMedia.gallery || '',
+        featured: companyMedia.featured || null,
+        categories: record.categories ? record.categories.split(',').map(c => parseInt(c.trim())) : [],
+        tags: record.tags ? record.tags.split(',').map(t => parseInt(t.trim())) : []
+      };
+    });
   } catch (error) {
     console.error(`Error reading CSV file: ${error.message}`);
     process.exit(1);
@@ -202,6 +228,7 @@ async function createProject(project) {
       status: 'publish',
       ...(project.categories.length > 0 && { categories: project.categories }),
       ...(allTags.length > 0 && { tags: allTags }),
+      ...(project.featured && { featured_media: project.featured }),
       meta: {
         '_project_subtext': project.subtext,
         '_project_role': project.role,

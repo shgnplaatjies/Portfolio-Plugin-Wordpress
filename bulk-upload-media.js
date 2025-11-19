@@ -107,41 +107,80 @@ async function uploadMedia(filePath, fileName) {
 
 async function processProjectMedia(projectDir) {
   const projectName = path.basename(projectDir);
-  const files = fs.readdirSync(projectDir).filter(f => {
+  const result = {
+    gallery: [],
+    featured: null
+  };
+
+  const featuredDir = path.join(projectDir, 'featured');
+  const hasFeatureddDir = fs.existsSync(featuredDir);
+
+  if (hasFeatureddDir) {
+    console.log(`\nProcessing featured image for project: ${projectName}`);
+    const featuredFiles = fs.readdirSync(featuredDir).filter(f => {
+      const ext = path.extname(f).toLowerCase();
+      return ['.jpg', '.jpeg', '.png', '.gif', '.webp'].includes(ext);
+    });
+
+    if (featuredFiles.length > 0) {
+      const featuredFile = featuredFiles[0];
+      const featuredPath = path.join(featuredDir, featuredFile);
+      console.log(`  Uploading featured: ${featuredFile}`);
+
+      const mediaId = await uploadMedia(featuredPath, featuredFile);
+
+      if (mediaId) {
+        const ext = path.extname(featuredFile);
+        const newFileName = `${mediaId}${ext}`;
+        const newFilePath = path.join(featuredDir, newFileName);
+
+        fs.renameSync(featuredPath, newFilePath);
+        console.log(`    ✓ Uploaded (ID: ${mediaId}) → Renamed to: ${newFileName}`);
+        result.featured = mediaId;
+
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+    }
+  }
+
+  const galleryFiles = fs.readdirSync(projectDir).filter(f => {
+    const fullPath = path.join(projectDir, f);
+    const stat = fs.statSync(fullPath);
+    if (!stat.isFile()) return false;
     const ext = path.extname(f).toLowerCase();
     return ['.jpg', '.jpeg', '.png', '.gif', '.webp'].includes(ext);
   });
 
-  if (files.length === 0) {
-    console.log(`No media files found in ${projectName}`);
-    return [];
-  }
+  if (galleryFiles.length > 0) {
+    console.log(`\nProcessing ${galleryFiles.length} gallery file(s) from project: ${projectName}`);
 
-  console.log(`\nProcessing ${files.length} file(s) from project: ${projectName}`);
-  const uploadedIds = [];
+    for (const file of galleryFiles) {
+      const filePath = path.join(projectDir, file);
+      console.log(`  Uploading: ${file}`);
 
-  for (const file of files) {
-    const filePath = path.join(projectDir, file);
-    console.log(`  Uploading: ${file}`);
+      const mediaId = await uploadMedia(filePath, file);
 
-    const mediaId = await uploadMedia(filePath, file);
+      if (mediaId) {
+        const ext = path.extname(file);
+        const newFileName = `${mediaId}${ext}`;
+        const newFilePath = path.join(projectDir, newFileName);
 
-    if (mediaId) {
-      const ext = path.extname(file);
-      const newFileName = `${mediaId}${ext}`;
-      const newFilePath = path.join(projectDir, newFileName);
+        fs.renameSync(filePath, newFilePath);
+        console.log(`    ✓ Uploaded (ID: ${mediaId}) → Renamed to: ${newFileName}`);
+        result.gallery.push(mediaId);
 
-      fs.renameSync(filePath, newFilePath);
-      console.log(`    ✓ Uploaded (ID: ${mediaId}) → Renamed to: ${newFileName}`);
-      uploadedIds.push(mediaId);
-
-      await new Promise(resolve => setTimeout(resolve, 500));
-    } else {
-      console.log(`    ✗ Failed to upload`);
+        await new Promise(resolve => setTimeout(resolve, 500));
+      } else {
+        console.log(`    ✗ Failed to upload`);
+      }
     }
   }
 
-  return uploadedIds;
+  if (result.gallery.length === 0 && !result.featured) {
+    console.log(`No media files found in ${projectName}`);
+  }
+
+  return result;
 }
 
 async function main() {
@@ -176,11 +215,11 @@ async function main() {
 
   for (const projectDir of projectDirs) {
     const projectPath = path.join(MEDIA_DIR, projectDir);
-    const uploadedIds = await processProjectMedia(projectPath);
+    const result = await processProjectMedia(projectPath);
 
-    if (uploadedIds.length > 0) {
-      mediaMap[projectDir] = uploadedIds;
-      totalUploaded += uploadedIds.length;
+    if (result.gallery.length > 0 || result.featured) {
+      mediaMap[projectDir] = result;
+      totalUploaded += result.gallery.length + (result.featured ? 1 : 0);
     }
   }
 
