@@ -156,7 +156,7 @@ class Portfolio_Plugin_Meta_Boxes {
 
         <div class="portfolio-meta-field">
             <label for="portfolio_project_source_url">
-                <strong>Source URL / Live Demo</strong>
+                <strong>Source URL</strong>
             </label>
             <input
                 type="url"

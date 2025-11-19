@@ -188,7 +188,7 @@ curl https://example.com/wp-json/wp/v2/projects?tags=42,43
 | Role | `_portfolio_project_role` | string | Your position/role |
 | Company | `_portfolio_project_company` | string | Organization name |
 | Company URL | `_portfolio_project_company_url` | URL | Company website |
-| Source URL | `_portfolio_project_source_url` | URL | Live demo or repo link |
+| Source URL | `_portfolio_project_source_url` | URL | repo link |
 | Gallery Images | `_portfolio_project_gallery` | comma-separated IDs | Media attachment IDs |
 | Date Type | `_portfolio_project_date_type` | `single` \| `range` | Single date or date range |
 | Date Format | `_portfolio_project_date_format` | `yyyy` \| `mm/yyyy` \| `dd/mm/yyyy` | Display format |
