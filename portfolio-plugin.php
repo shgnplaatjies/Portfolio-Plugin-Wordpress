@@ -51,6 +51,9 @@ add_action('rest_api_init', function() {
             'type' => 'string',
             'single' => true,
             'show_in_rest' => true,
+            'auth_callback' => function() {
+                return current_user_can('edit_posts');
+            }
         ));
     }
 });
