@@ -32,10 +32,12 @@ add_action('init', function() {
 });
 
 add_action('rest_api_init', function() {
-    $text_fields = array(
+    $meta_fields = array(
         '_portfolio_project_subtext',
         '_portfolio_project_role',
         '_portfolio_project_company',
+        '_portfolio_project_company_url',
+        '_portfolio_project_source_url',
         '_portfolio_project_gallery',
         '_portfolio_project_date_type',
         '_portfolio_project_date_format',
@@ -43,33 +45,12 @@ add_action('rest_api_init', function() {
         '_portfolio_project_date_end'
     );
 
-    $url_fields = array(
-        '_portfolio_project_company_url',
-        '_portfolio_project_source_url'
-    );
-
-    foreach ($text_fields as $field) {
+    foreach ($meta_fields as $field) {
         register_meta('post', $field, array(
             'object_subtype' => 'project',
             'type' => 'string',
             'single' => true,
             'show_in_rest' => true,
-            'sanitize_callback' => 'sanitize_text_field',
-            'auth_callback' => function() {
-                return current_user_can('edit_posts');
-            }
-        ));
-    }
-
-    foreach ($url_fields as $field) {
-        register_meta('post', $field, array(
-            'object_subtype' => 'project',
-            'type' => 'string',
-            'single' => true,
-            'show_in_rest' => true,
-            'auth_callback' => function() {
-                return current_user_can('edit_posts');
-            }
         ));
     }
 });
