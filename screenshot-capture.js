@@ -4,19 +4,19 @@ const fs = require('fs');
 const path = require('path');
 const { chromium } = require('playwright');
 
-// Configuration
+
 const CSV_FILE = process.argv[2] || path.join(__dirname, 'projects.csv');
 const BULK_UPLOAD_MEDIA = path.join(__dirname, 'bulk-upload-media');
 const LOG_FILE = path.join(__dirname, 'screenshot-capture.log');
 
-// Viewport dimensions for different devices
+
 const VIEWPORTS = {
   mobile: { width: 375, height: 667, name: 'mobile' },
   tablet: { width: 768, height: 1024, name: 'tablet' },
   desktop: { width: 1920, height: 1080, name: 'desktop' }
 };
 
-// Logging helper
+
 function log(message) {
   const timestamp = new Date().toISOString();
   const logEntry = `[${timestamp}] ${message}`;
@@ -80,7 +80,7 @@ async function captureScreenshots(url, company) {
   const companyDir = path.join(BULK_UPLOAD_MEDIA, company.toLowerCase());
   const galleryDir = path.join(companyDir, 'gallery');
 
-  // Create gallery directory if it doesn't exist
+  
   if (!fs.existsSync(galleryDir)) {
     fs.mkdirSync(galleryDir, { recursive: true });
   }
@@ -90,7 +90,7 @@ async function captureScreenshots(url, company) {
     failed: []
   };
 
-  // Remove protocol for display
+  
   const displayUrl = url.replace(/^https?:\/\//, '');
 
   for (const [viewportKey, viewport] of Object.entries(VIEWPORTS)) {
@@ -107,26 +107,26 @@ async function captureScreenshots(url, company) {
 
       const page = await context.newPage();
 
-      // Set a reasonable timeout for page load
+      
       page.setDefaultTimeout(30000);
       page.setDefaultNavigationTimeout(30000);
 
       log(`Navigating to ${displayUrl} [${viewport.name}]...`);
 
       try {
-        // Wait for network idle (all network requests completed)
+        
         await page.goto(url, { waitUntil: 'networkidle' });
       } catch (error) {
-        // If networkidle times out, continue with current state after a delay
+        
         log(`  ⚠ Network idle timeout for ${displayUrl} [${viewport.name}], continuing with current page state`);
         await new Promise(resolve => setTimeout(resolve, 2000));
       }
 
-      // Wait additional time for animations to complete
+      
       log(`  Waiting for animations...`);
       await new Promise(resolve => setTimeout(resolve, 2000));
 
-      // Capture viewport screenshot
+      
       const timestamp = Date.now();
       const filename = `${viewport.name}-${timestamp}.png`;
       const filepath = path.join(galleryDir, filename);
@@ -155,7 +155,7 @@ async function captureScreenshots(url, company) {
         const browser = await chromium.launch();
         await browser.close();
       } catch (e) {
-        // Silently ignore cleanup errors
+        
       }
     }
   }
@@ -164,14 +164,14 @@ async function captureScreenshots(url, company) {
 }
 
 async function main() {
-  // Clear previous log
+  
   fs.writeFileSync(LOG_FILE, '');
 
   log('Starting screenshot capture...\n');
   log(`CSV File: ${CSV_FILE}`);
   log(`Output Directory: ${BULK_UPLOAD_MEDIA}\n`);
 
-  // Read CSV
+  
   if (!fs.existsSync(CSV_FILE)) {
     log(`✗ Error: CSV file not found: ${CSV_FILE}`);
     process.exit(1);
@@ -190,7 +190,7 @@ async function main() {
     details: []
   };
 
-  // Process each company URL
+  
   for (const record of records) {
     const company = record.company.trim();
     const url = record.company_url.trim();
@@ -200,7 +200,7 @@ async function main() {
       continue;
     }
 
-    // Ensure URL has protocol
+    
     const fullUrl = url.startsWith('http') ? url : `https://${url}`;
 
     allResults.totalUrls++;
@@ -219,11 +219,11 @@ async function main() {
     results.success.forEach(s => allResults.totalSuccess++);
     results.failed.forEach(f => allResults.totalFailed++);
 
-    // Delay between requests to avoid overwhelming target servers
+    
     await new Promise(resolve => setTimeout(resolve, 1000));
   }
 
-  // Log summary
+  
   log('\n' + '='.repeat(60));
   log('SCREENSHOT CAPTURE SUMMARY');
   log('='.repeat(60));
@@ -233,7 +233,7 @@ async function main() {
   log(`Success rate: ${allResults.totalUrls > 0 ? ((allResults.totalSuccess / (allResults.totalSuccess + allResults.totalFailed)) * 100).toFixed(1) : 0}%`);
   log('='.repeat(60) + '\n');
 
-  // Log failed URLs for reference
+  
   if (allResults.totalFailed > 0) {
     log('FAILED CAPTURES:\n');
     allResults.details.forEach(detail => {
