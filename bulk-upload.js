@@ -111,7 +111,8 @@ function loadMediaGallery() {
         if (ids.length > 0) {
           mediaMap[projectName.toLowerCase()] = {
             gallery: ids.join(','),
-            featured: null
+            featured: null,
+            thumbnail: null
           };
         }
       }
@@ -128,9 +129,28 @@ function loadMediaGallery() {
           const featuredId = parseInt(name);
           if (!isNaN(featuredId)) {
             if (!mediaMap[projectName.toLowerCase()]) {
-              mediaMap[projectName.toLowerCase()] = { gallery: '', featured: null };
+              mediaMap[projectName.toLowerCase()] = { gallery: '', featured: null, thumbnail: null };
             }
             mediaMap[projectName.toLowerCase()].featured = featuredId;
+          }
+        }
+      }
+
+      const thumbnailDir = path.join(projectPath, 'thumbnail');
+      if (fs.existsSync(thumbnailDir)) {
+        const thumbnailFiles = fs.readdirSync(thumbnailDir).filter(f => {
+          const ext = path.extname(f).toLowerCase();
+          return ['.jpg', '.jpeg', '.png', '.gif', '.webp'].includes(ext);
+        });
+
+        if (thumbnailFiles.length > 0) {
+          const name = path.parse(thumbnailFiles[0]).name;
+          const thumbnailId = parseInt(name);
+          if (!isNaN(thumbnailId)) {
+            if (!mediaMap[projectName.toLowerCase()]) {
+              mediaMap[projectName.toLowerCase()] = { gallery: '', featured: null, thumbnail: null };
+            }
+            mediaMap[projectName.toLowerCase()].thumbnail = thumbnailId;
           }
         }
       }
@@ -150,7 +170,7 @@ function loadProjectsFromCSV(filePath) {
     const mediaMap = loadMediaGallery();
 
     return records.map(record => {
-      const companyMedia = mediaMap[record.company.toLowerCase()] || { gallery: '', featured: null };
+      const companyMedia = mediaMap[record.company.toLowerCase()] || { gallery: '', featured: null, thumbnail: null };
       return {
         title: record.title,
         company: record.company,
@@ -164,6 +184,7 @@ function loadProjectsFromCSV(filePath) {
         companyUrl: record.company_url || '',
         gallery: companyMedia.gallery || '',
         featured: companyMedia.featured || null,
+        thumbnail: companyMedia.thumbnail || null,
         categories: record.categories ? record.categories.split(',').map(c => parseInt(c.trim())) : [],
         tags: record.tags ? record.tags.split(',').map(t => parseInt(t.trim())) : []
       };
@@ -235,6 +256,7 @@ async function createProject(project) {
         '_project_company': project.company,
         ...(project.companyUrl && { '_project_company_url': project.companyUrl }),
         ...(project.gallery && { '_project_gallery': project.gallery }),
+        ...(project.thumbnail && { '_project_thumbnail': project.thumbnail }),
         '_project_date_type': project.dateType,
         '_project_date_format': project.dateFormat,
         '_project_date_start': project.dateStart,

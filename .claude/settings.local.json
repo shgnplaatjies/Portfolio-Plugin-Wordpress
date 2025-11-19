@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "WebFetch(domain:staging.dextertuition.co.za)",
-      "WebFetch(domain:staging.emrl.co.za)"
+      "WebFetch(domain:staging.emrl.co.za)",
+      "Bash(node bulk-upload-media.js:*)"
     ],
     "deny": [],
     "ask": []

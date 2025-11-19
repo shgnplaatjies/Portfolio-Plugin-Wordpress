@@ -9,7 +9,7 @@ A WordPress plugin that provides a custom post type for portfolio entries with R
 
 ## Bulk Upload
 
-Use the included `bulk-upload.js` script to create multiple projects from a CSV file.
+Use the included scripts to upload projects and associated media from CSV and media files.
 
 ### Setup
 
@@ -32,6 +32,40 @@ node check-taxonomies.js
 
 This will display all available categories and tags with their IDs. Use these IDs in your CSV.
 
+### Organize Media Files
+
+Create a `bulk-upload-media/` directory with the following structure:
+```
+bulk-upload-media/
+├── project-name-1/
+│   ├── featured/
+│   │   └── featured-image.jpg
+│   ├── thumbnail/
+│   │   └── thumbnail-image.jpg
+│   ├── gallery-image-1.jpg
+│   └── gallery-image-2.jpg
+└── project-name-2/
+    ├── featured/
+    │   └── featured-image.png
+    └── gallery-image-1.png
+```
+
+**Directory Structure:**
+- `featured/` - Single featured image (displayed as featured media)
+- `thumbnail/` - Single thumbnail image (stored in `_project_thumbnail` meta field)
+- Root level - Gallery images (stored as comma-separated IDs in `_project_gallery`)
+
+### Upload Media Files
+
+```bash
+node bulk-upload-media.js
+```
+
+This will:
+- Upload all media to WordPress
+- Rename files to their WordPress attachment IDs
+- Output a media map for automatic integration
+
 4. Prepare your CSV file with this format:
 ```csv
 title,company,role,dateStart,dateEnd,dateType,dateFormat,subtext,content,categories,tags,company_url
@@ -42,7 +76,9 @@ title,company,role,dateStart,dateEnd,dateType,dateFormat,subtext,content,categor
 - `tags` - Comma-separated tag IDs (optional)
 - `company_url` - Company website URL (optional)
 
-### Run the Upload
+**Note:** Company name in CSV must match the directory name in `bulk-upload-media/` (case-insensitive) for automatic media association.
+
+### Upload Projects
 
 ```bash
 node bulk-upload.js
@@ -53,7 +89,13 @@ Or with a custom CSV file:
 node bulk-upload.js path/to/custom.csv
 ```
 
-**Note**: No npm installation required. The script uses only Node.js built-in modules.
+This will:
+- Read projects from CSV
+- Match media files by company name
+- Set featured image, thumbnail, and gallery images
+- Create/update all projects with associated media
+
+**Note**: No npm installation required. The scripts use only Node.js built-in modules.
 
 ## REST API
 
@@ -188,8 +230,9 @@ curl https://example.com/wp-json/wp/v2/projects?tags=42,43
 | Role | `_project_role` | string | Your position/role |
 | Company | `_project_company` | string | Organization name |
 | Company URL | `_project_company_url` | URL | Company website |
-| Source URL | `_project_source_url` | URL | repo link |
+| Source URL | `_project_source_url` | URL | Live demo or repo link |
 | Gallery Images | `_project_gallery` | comma-separated IDs | Media attachment IDs |
+| Thumbnail | `_project_thumbnail` | integer | Thumbnail image attachment ID |
 | Date Type | `_project_date_type` | `single` \| `range` | Single date or date range |
 | Date Format | `_project_date_format` | `yyyy` \| `mm/yyyy` \| `dd/mm/yyyy` | Display format |
 | Start Date | `_project_date_start` | YYYY-MM-DD | Project start date |

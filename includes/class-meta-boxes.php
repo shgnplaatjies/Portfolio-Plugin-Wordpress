@@ -106,6 +106,7 @@ class Portfolio_Plugin_Meta_Boxes {
         $company = get_post_meta($post->ID, '_project_company', true);
         $company_url = get_post_meta($post->ID, '_project_company_url', true);
         $source_url = get_post_meta($post->ID, '_project_source_url', true);
+        $thumbnail = get_post_meta($post->ID, '_project_thumbnail', true);
         $date_type = get_post_meta($post->ID, '_project_date_type', true) ?: 'single';
         $date_format = get_post_meta($post->ID, '_project_date_format', true) ?: 'mm/yyyy';
         $date_start = get_post_meta($post->ID, '_project_date_start', true);
@@ -166,6 +167,22 @@ class Portfolio_Plugin_Meta_Boxes {
                 class="widefat"
                 placeholder="https://example.com"
             />
+        </div>
+
+        <div class="portfolio-meta-field">
+            <label for="portfolio_project_thumbnail">
+                <strong>Thumbnail ID</strong>
+            </label>
+            <input
+                type="number"
+                id="portfolio_project_thumbnail"
+                name="portfolio_project_thumbnail"
+                value="<?php echo esc_attr($thumbnail); ?>"
+                class="widefat"
+                placeholder="e.g., 123"
+                min="0"
+            />
+            <small class="description">WordPress media attachment ID for thumbnail image</small>
         </div>
 
         <div class="portfolio-meta-field">
@@ -250,6 +267,15 @@ class Portfolio_Plugin_Meta_Boxes {
         if (isset($_POST['portfolio_project_gallery'])) {
             $gallery_ids = sanitize_text_field($_POST['portfolio_project_gallery']);
             update_post_meta($post_id, '_project_gallery', $gallery_ids);
+        }
+
+        if (isset($_POST['portfolio_project_thumbnail'])) {
+            $thumbnail_id = absint($_POST['portfolio_project_thumbnail']);
+            if ($thumbnail_id > 0) {
+                update_post_meta($post_id, '_project_thumbnail', $thumbnail_id);
+            } else {
+                delete_post_meta($post_id, '_project_thumbnail');
+            }
         }
 
         if (isset($_POST['portfolio_project_role'])) {

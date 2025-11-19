@@ -109,7 +109,8 @@ async function processProjectMedia(projectDir) {
   const projectName = path.basename(projectDir);
   const result = {
     gallery: [],
-    featured: null
+    featured: null,
+    thumbnail: null
   };
 
   const featuredDir = path.join(projectDir, 'featured');
@@ -137,6 +138,37 @@ async function processProjectMedia(projectDir) {
         fs.renameSync(featuredPath, newFilePath);
         console.log(`    ✓ Uploaded (ID: ${mediaId}) → Renamed to: ${newFileName}`);
         result.featured = mediaId;
+
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+    }
+  }
+
+  const thumbnailDir = path.join(projectDir, 'thumbnail');
+  const hasThumbnailDir = fs.existsSync(thumbnailDir);
+
+  if (hasThumbnailDir) {
+    console.log(`\nProcessing thumbnail image for project: ${projectName}`);
+    const thumbnailFiles = fs.readdirSync(thumbnailDir).filter(f => {
+      const ext = path.extname(f).toLowerCase();
+      return ['.jpg', '.jpeg', '.png', '.gif', '.webp'].includes(ext);
+    });
+
+    if (thumbnailFiles.length > 0) {
+      const thumbnailFile = thumbnailFiles[0];
+      const thumbnailPath = path.join(thumbnailDir, thumbnailFile);
+      console.log(`  Uploading thumbnail: ${thumbnailFile}`);
+
+      const mediaId = await uploadMedia(thumbnailPath, thumbnailFile);
+
+      if (mediaId) {
+        const ext = path.extname(thumbnailFile);
+        const newFileName = `${mediaId}${ext}`;
+        const newFilePath = path.join(thumbnailDir, newFileName);
+
+        fs.renameSync(thumbnailPath, newFilePath);
+        console.log(`    ✓ Uploaded (ID: ${mediaId}) → Renamed to: ${newFileName}`);
+        result.thumbnail = mediaId;
 
         await new Promise(resolve => setTimeout(resolve, 500));
       }
@@ -217,9 +249,9 @@ async function main() {
     const projectPath = path.join(MEDIA_DIR, projectDir);
     const result = await processProjectMedia(projectPath);
 
-    if (result.gallery.length > 0 || result.featured) {
+    if (result.gallery.length > 0 || result.featured || result.thumbnail) {
       mediaMap[projectDir] = result;
-      totalUploaded += result.gallery.length + (result.featured ? 1 : 0);
+      totalUploaded += result.gallery.length + (result.featured ? 1 : 0) + (result.thumbnail ? 1 : 0);
     }
   }
 
