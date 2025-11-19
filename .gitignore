@@ -51,4 +51,4 @@ wp-config.php
 *.csv
 /bulk-upload-media
 .env
-./node_modules
+/node_modules/
