@@ -109,8 +109,21 @@ function loadMediaGallery() {
         }).filter(id => !isNaN(id));
 
         if (ids.length > 0) {
+          const captions = {};
+          // Check for caption files for each image ID
+          ids.forEach(id => {
+            const captionFile = path.join(projectPath, `${id}.txt`);
+            if (fs.existsSync(captionFile)) {
+              const caption = fs.readFileSync(captionFile, 'utf8').trim();
+              if (caption) {
+                captions[id] = caption;
+              }
+            }
+          });
+
           mediaMap[projectName.toLowerCase()] = {
             gallery: ids.join(','),
+            galleryCaption: captions,
             featured: null,
             thumbnail: null
           };
@@ -129,7 +142,7 @@ function loadMediaGallery() {
           const thumbnailId = parseInt(name);
           if (!isNaN(thumbnailId)) {
             if (!mediaMap[projectName.toLowerCase()]) {
-              mediaMap[projectName.toLowerCase()] = { gallery: '', featured: null, thumbnail: null };
+              mediaMap[projectName.toLowerCase()] = { gallery: '', galleryCaption: {}, featured: null, thumbnail: null };
             }
             mediaMap[projectName.toLowerCase()].thumbnail = thumbnailId;
             mediaMap[projectName.toLowerCase()].featured = thumbnailId;
@@ -152,7 +165,7 @@ function loadProjectsFromCSV(filePath) {
     const mediaMap = loadMediaGallery();
 
     return records.map(record => {
-      const companyMedia = mediaMap[record.company.toLowerCase()] || { gallery: '', featured: null, thumbnail: null };
+      const companyMedia = mediaMap[record.company.toLowerCase()] || { gallery: '', galleryCaption: {}, featured: null, thumbnail: null };
       return {
         title: record.title,
         company: record.company,
@@ -165,6 +178,7 @@ function loadProjectsFromCSV(filePath) {
         content: record.content,
         companyUrl: record.company_url || '',
         gallery: companyMedia.gallery || '',
+        galleryCaption: companyMedia.galleryCaption || {},
         featured: companyMedia.featured || null,
         thumbnail: companyMedia.thumbnail || null,
         categories: record.categories ? record.categories.split(',').map(c => parseInt(c.trim())) : [],
@@ -238,6 +252,7 @@ async function createProject(project) {
         '_project_company': project.company,
         ...(project.companyUrl && { '_project_company_url': project.companyUrl }),
         ...(project.gallery && { '_project_gallery': project.gallery }),
+        ...(Object.keys(project.galleryCaption).length > 0 && { '_project_gallery_captions': JSON.stringify(project.galleryCaption) }),
         ...(project.thumbnail && { '_project_thumbnail': String(project.thumbnail) }),
         '_project_date_type': project.dateType,
         '_project_date_format': project.dateFormat,

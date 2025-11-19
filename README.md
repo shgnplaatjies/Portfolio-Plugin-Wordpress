@@ -32,6 +32,43 @@ node check-taxonomies.js
 
 This will display all available categories and tags with their IDs. Use these IDs in your CSV.
 
+### Capture Website Screenshots
+
+Automatically capture responsive design screenshots of your company websites at different viewport sizes.
+
+1. Create a CSV file with company URLs (or use your existing `projects.csv`):
+```bash
+node screenshot-capture.js projects.csv
+```
+
+This will:
+- Read all company URLs from the CSV file
+- Capture 3 screenshots per URL at standard device sizes:
+  - **Mobile**: 375×667 (iPhone SE)
+  - **Tablet**: 768×1024 (iPad)
+  - **Desktop**: 1920×1080 (Standard desktop)
+- Save screenshots to `bulk-upload-media/{company-name}/gallery/`
+- Files are named: `{viewport}-{timestamp}.png`
+- Log results to `screenshot-capture.log`
+- Continue processing even if some URLs fail
+
+**Adding captions to screenshots:**
+
+For each screenshot, create a `.txt` file with the same base name as the image to add a caption:
+```
+bulk-upload-media/
+├── company-name/
+    └── gallery/
+        ├── mobile-1732000000.png
+        ├── mobile-1732000000.txt (contains caption text)
+        ├── tablet-1732000000.png
+        ├── tablet-1732000000.txt
+        ├── desktop-1732000000.png
+        └── desktop-1732000000.txt
+```
+
+Caption files will be renamed to match the WordPress attachment IDs after upload.
+
 ### Organize Media Files
 
 Create a `bulk-upload-media/` directory with the following structure:
@@ -51,6 +88,10 @@ bulk-upload-media/
 **Directory Structure:**
 - `thumbnail/` - Single thumbnail/featured image (displayed as featured media and stored in `_project_thumbnail` meta field)
 - Root level - Gallery images (stored as comma-separated IDs in `_project_gallery`)
+- `.txt` files - Optional captions for images (e.g., `mobile-1732000000.txt` for `mobile-1732000000.png`)
+
+**Caption Files:**
+Each image can have an optional caption by creating a `.txt` file with the same base name. The caption text will be stored in the `_project_gallery_captions` meta field as a JSON mapping of image IDs to caption text.
 
 ### Upload Media Files
 
@@ -229,6 +270,7 @@ curl https://example.com/wp-json/wp/v2/projects?tags=42,43
 | Company URL | `_project_company_url` | URL | Company website |
 | Source URL | `_project_source_url` | URL | Live demo or repo link |
 | Gallery Images | `_project_gallery` | comma-separated IDs | Media attachment IDs |
+| Gallery Captions | `_project_gallery_captions` | JSON object | Image ID → caption mapping |
 | Thumbnail | `_project_thumbnail` | integer | Thumbnail image attachment ID |
 | Date Type | `_project_date_type` | `single` \| `range` | Single date or date range |
 | Date Format | `_project_date_format` | `yyyy` \| `mm/yyyy` \| `dd/mm/yyyy` | Display format |

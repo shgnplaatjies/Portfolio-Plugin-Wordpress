@@ -124,6 +124,7 @@ async function processProjectMedia(projectDir) {
   const projectName = path.basename(projectDir);
   const result = {
     gallery: [],
+    galleryCaption: {},
     featured: null,
     thumbnail: null
   };
@@ -199,6 +200,17 @@ async function processProjectMedia(projectDir) {
         if (exists) {
           console.log(`    ✓ Already exists (ID: ${existingId}) - Skipping upload`);
           result.gallery.push(existingId);
+
+          // Check for caption file even if media already exists
+          const captionFileName = `${existingId}.txt`;
+          const captionFilePath = path.join(projectDir, captionFileName);
+          if (fs.existsSync(captionFilePath)) {
+            const caption = fs.readFileSync(captionFilePath, 'utf8').trim();
+            if (caption) {
+              result.galleryCaption[existingId] = caption;
+            }
+          }
+
           await new Promise(resolve => setTimeout(resolve, 300));
           continue;
         } else {
@@ -217,6 +229,21 @@ async function processProjectMedia(projectDir) {
         fs.renameSync(filePath, newFilePath);
         console.log(`    ✓ Uploaded (ID: ${mediaId}) → Renamed to: ${newFileName}`);
         result.gallery.push(mediaId);
+
+        // Check for caption file
+        const captionFileName = `${fileName}.txt`;
+        const captionFilePath = path.join(projectDir, captionFileName);
+        if (fs.existsSync(captionFilePath)) {
+          const caption = fs.readFileSync(captionFilePath, 'utf8').trim();
+          if (caption) {
+            result.galleryCaption[mediaId] = caption;
+          }
+          // Rename caption file to match media ID
+          const newCaptionFileName = `${mediaId}.txt`;
+          const newCaptionFilePath = path.join(projectDir, newCaptionFileName);
+          fs.renameSync(captionFilePath, newCaptionFilePath);
+          console.log(`    ✓ Caption file updated: ${newCaptionFileName}`);
+        }
 
         await new Promise(resolve => setTimeout(resolve, 500));
       } else {

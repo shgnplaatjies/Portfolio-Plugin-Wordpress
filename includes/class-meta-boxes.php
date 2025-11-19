@@ -65,12 +65,15 @@ class Portfolio_Plugin_Meta_Boxes {
         $gallery_ids = get_post_meta($post->ID, '_project_gallery', true);
         $gallery_ids = $gallery_ids ? explode(',', $gallery_ids) : array();
 
+        $gallery_captions = get_post_meta($post->ID, '_project_gallery_captions', true);
+        $gallery_captions = $gallery_captions ? json_decode($gallery_captions, true) : array();
+
         ?>
         <div id="portfolio-gallery-container" class="portfolio-gallery-container">
             <button type="button" id="portfolio-add-gallery" class="button button-primary">
                 Add Images to Gallery
             </button>
-            <p class="description">Upload or select images to create a gallery for this project.</p>
+            <p class="description">Upload or select images to create a gallery for this project. You can add captions to each image.</p>
 
             <div id="portfolio-gallery-list" class="portfolio-gallery-list">
                 <?php
@@ -79,8 +82,10 @@ class Portfolio_Plugin_Meta_Boxes {
                         $attachment_id = trim($attachment_id);
                         if (!empty($attachment_id)) {
                             $thumb = wp_get_attachment_image($attachment_id, 'thumbnail');
+                            $caption = isset($gallery_captions[$attachment_id]) ? $gallery_captions[$attachment_id] : '';
                             echo '<div class="portfolio-gallery-item" data-attachment-id="' . esc_attr($attachment_id) . '">';
                             echo $thumb;
+                            echo '<input type="text" class="portfolio-gallery-caption" placeholder="Image caption (optional)" value="' . esc_attr($caption) . '" />';
                             echo '<button type="button" class="portfolio-remove-image button button-small">Remove</button>';
                             echo '</div>';
                         }
@@ -94,6 +99,12 @@ class Portfolio_Plugin_Meta_Boxes {
                 id="portfolio_project_gallery"
                 name="portfolio_project_gallery"
                 value="<?php echo esc_attr(implode(',', $gallery_ids)); ?>"
+            />
+            <input
+                type="hidden"
+                id="portfolio_project_gallery_captions"
+                name="portfolio_project_gallery_captions"
+                value=""
             />
         </div>
         <?php
@@ -267,6 +278,15 @@ class Portfolio_Plugin_Meta_Boxes {
         if (isset($_POST['portfolio_project_gallery'])) {
             $gallery_ids = sanitize_text_field($_POST['portfolio_project_gallery']);
             update_post_meta($post_id, '_project_gallery', $gallery_ids);
+        }
+
+        if (isset($_POST['portfolio_project_gallery_captions'])) {
+            $captions_json = sanitize_text_field($_POST['portfolio_project_gallery_captions']);
+            if (!empty($captions_json)) {
+                update_post_meta($post_id, '_project_gallery_captions', $captions_json);
+            } else {
+                delete_post_meta($post_id, '_project_gallery_captions');
+            }
         }
 
         if (isset($_POST['portfolio_project_thumbnail'])) {

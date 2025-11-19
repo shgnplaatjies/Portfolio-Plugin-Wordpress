@@ -39,6 +39,7 @@ add_action('rest_api_init', function() {
         '_project_company_url',
         '_project_source_url',
         '_project_gallery',
+        '_project_gallery_captions',
         '_project_thumbnail',
         '_project_date_type',
         '_project_date_format',
