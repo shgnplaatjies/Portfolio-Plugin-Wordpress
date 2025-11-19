@@ -117,25 +117,6 @@ function loadMediaGallery() {
         }
       }
 
-      const featuredDir = path.join(projectPath, 'featured');
-      if (fs.existsSync(featuredDir)) {
-        const featuredFiles = fs.readdirSync(featuredDir).filter(f => {
-          const ext = path.extname(f).toLowerCase();
-          return ['.jpg', '.jpeg', '.png', '.gif', '.webp'].includes(ext);
-        });
-
-        if (featuredFiles.length > 0) {
-          const name = path.parse(featuredFiles[0]).name;
-          const featuredId = parseInt(name);
-          if (!isNaN(featuredId)) {
-            if (!mediaMap[projectName.toLowerCase()]) {
-              mediaMap[projectName.toLowerCase()] = { gallery: '', featured: null, thumbnail: null };
-            }
-            mediaMap[projectName.toLowerCase()].featured = featuredId;
-          }
-        }
-      }
-
       const thumbnailDir = path.join(projectPath, 'thumbnail');
       if (fs.existsSync(thumbnailDir)) {
         const thumbnailFiles = fs.readdirSync(thumbnailDir).filter(f => {
@@ -151,6 +132,7 @@ function loadMediaGallery() {
               mediaMap[projectName.toLowerCase()] = { gallery: '', featured: null, thumbnail: null };
             }
             mediaMap[projectName.toLowerCase()].thumbnail = thumbnailId;
+            mediaMap[projectName.toLowerCase()].featured = thumbnailId;
           }
         }
       }
@@ -256,7 +238,7 @@ async function createProject(project) {
         '_project_company': project.company,
         ...(project.companyUrl && { '_project_company_url': project.companyUrl }),
         ...(project.gallery && { '_project_gallery': project.gallery }),
-        ...(project.thumbnail && { '_project_thumbnail': project.thumbnail }),
+        ...(project.thumbnail && { '_project_thumbnail': String(project.thumbnail) }),
         '_project_date_type': project.dateType,
         '_project_date_format': project.dateFormat,
         '_project_date_start': project.dateStart,

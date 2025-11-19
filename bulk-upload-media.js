@@ -128,52 +128,6 @@ async function processProjectMedia(projectDir) {
     thumbnail: null
   };
 
-  const featuredDir = path.join(projectDir, 'featured');
-  const hasFeatureddDir = fs.existsSync(featuredDir);
-
-  if (hasFeatureddDir) {
-    console.log(`\nProcessing featured image for project: ${projectName}`);
-    const featuredFiles = fs.readdirSync(featuredDir).filter(f => {
-      const ext = path.extname(f).toLowerCase();
-      return ['.jpg', '.jpeg', '.png', '.gif', '.webp'].includes(ext);
-    });
-
-    if (featuredFiles.length > 0) {
-      const featuredFile = featuredFiles[0];
-      const featuredPath = path.join(featuredDir, featuredFile);
-      const fileName = path.parse(featuredFile).name;
-      const existingId = parseInt(fileName);
-
-      if (!isNaN(existingId)) {
-        console.log(`  Checking featured: ${featuredFile}`);
-        const exists = await mediaExists(existingId);
-        if (exists) {
-          console.log(`    ✓ Already exists (ID: ${existingId}) - Skipping upload`);
-          result.featured = existingId;
-          await new Promise(resolve => setTimeout(resolve, 300));
-          return result;
-        } else {
-          console.log(`    ⚠ ID ${existingId} not found on WordPress - Re-uploading`);
-        }
-      }
-
-      console.log(`  Uploading featured: ${featuredFile}`);
-      const mediaId = await uploadMedia(featuredPath, featuredFile);
-
-      if (mediaId) {
-        const ext = path.extname(featuredFile);
-        const newFileName = `${mediaId}${ext}`;
-        const newFilePath = path.join(featuredDir, newFileName);
-
-        fs.renameSync(featuredPath, newFilePath);
-        console.log(`    ✓ Uploaded (ID: ${mediaId}) → Renamed to: ${newFileName}`);
-        result.featured = mediaId;
-
-        await new Promise(resolve => setTimeout(resolve, 500));
-      }
-    }
-  }
-
   const thumbnailDir = path.join(projectDir, 'thumbnail');
   const hasThumbnailDir = fs.existsSync(thumbnailDir);
 
@@ -196,6 +150,7 @@ async function processProjectMedia(projectDir) {
         if (exists) {
           console.log(`    ✓ Already exists (ID: ${existingId}) - Skipping upload`);
           result.thumbnail = existingId;
+          result.featured = existingId;
           await new Promise(resolve => setTimeout(resolve, 300));
         } else {
           console.log(`    ⚠ ID ${existingId} not found on WordPress - Re-uploading`);
@@ -214,6 +169,7 @@ async function processProjectMedia(projectDir) {
           fs.renameSync(thumbnailPath, newFilePath);
           console.log(`    ✓ Uploaded (ID: ${mediaId}) → Renamed to: ${newFileName}`);
           result.thumbnail = mediaId;
+          result.featured = mediaId;
 
           await new Promise(resolve => setTimeout(resolve, 500));
         }

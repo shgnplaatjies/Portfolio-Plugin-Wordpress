@@ -38,21 +38,18 @@ Create a `bulk-upload-media/` directory with the following structure:
 ```
 bulk-upload-media/
 ├── project-name-1/
-│   ├── featured/
-│   │   └── featured-image.jpg
 │   ├── thumbnail/
 │   │   └── thumbnail-image.jpg
 │   ├── gallery-image-1.jpg
 │   └── gallery-image-2.jpg
 └── project-name-2/
-    ├── featured/
-    │   └── featured-image.png
+    ├── thumbnail/
+    │   └── thumbnail-image.png
     └── gallery-image-1.png
 ```
 
 **Directory Structure:**
-- `featured/` - Single featured image (displayed as featured media)
-- `thumbnail/` - Single thumbnail image (stored in `_project_thumbnail` meta field)
+- `thumbnail/` - Single thumbnail/featured image (displayed as featured media and stored in `_project_thumbnail` meta field)
 - Root level - Gallery images (stored as comma-separated IDs in `_project_gallery`)
 
 ### Upload Media Files
