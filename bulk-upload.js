@@ -81,10 +81,51 @@ function parseCSVLine(line) {
   return result;
 }
 
+function loadMediaGallery() {
+  try {
+    const mediaDir = path.join(__dirname, 'bulk-upload-media');
+    const mediaMap = {};
+
+    if (!fs.existsSync(mediaDir)) {
+      return mediaMap;
+    }
+
+    const projectDirs = fs.readdirSync(mediaDir).filter(f => {
+      const fullPath = path.join(mediaDir, f);
+      return fs.statSync(fullPath).isDirectory();
+    });
+
+    projectDirs.forEach(projectName => {
+      const projectPath = path.join(mediaDir, projectName);
+      const files = fs.readdirSync(projectPath).filter(f => {
+        const ext = path.extname(f).toLowerCase();
+        return ['.jpg', '.jpeg', '.png', '.gif', '.webp'].includes(ext);
+      });
+
+      if (files.length > 0) {
+        const ids = files.map(f => {
+          const name = path.parse(f).name;
+          return parseInt(name);
+        }).filter(id => !isNaN(id));
+
+        if (ids.length > 0) {
+          mediaMap[projectName.toLowerCase()] = ids.join(',');
+        }
+      }
+    });
+
+    return mediaMap;
+  } catch (error) {
+    console.warn('Warning: Could not load media gallery:', error.message);
+    return {};
+  }
+}
+
 function loadProjectsFromCSV(filePath) {
   try {
     const content = fs.readFileSync(filePath, 'utf8');
     const records = parseCSV(content);
+    const mediaMap = loadMediaGallery();
 
     return records.map(record => ({
       title: record.title,
@@ -97,6 +138,7 @@ function loadProjectsFromCSV(filePath) {
       subtext: record.subtext,
       content: record.content,
       companyUrl: record.company_url || '',
+      gallery: mediaMap[record.company.toLowerCase()] || '',
       categories: record.categories ? record.categories.split(',').map(c => parseInt(c.trim())) : [],
       tags: record.tags ? record.tags.split(',').map(t => parseInt(t.trim())) : []
     }));
@@ -161,14 +203,15 @@ async function createProject(project) {
       ...(project.categories.length > 0 && { categories: project.categories }),
       ...(allTags.length > 0 && { tags: allTags }),
       meta: {
-        '_portfolio_project_subtext': project.subtext,
-        '_portfolio_project_role': project.role,
-        '_portfolio_project_company': project.company,
-        ...(project.companyUrl && { '_portfolio_project_company_url': project.companyUrl }),
-        '_portfolio_project_date_type': project.dateType,
-        '_portfolio_project_date_format': project.dateFormat,
-        '_portfolio_project_date_start': project.dateStart,
-        ...(project.dateEnd && { '_portfolio_project_date_end': project.dateEnd })
+        '_project_subtext': project.subtext,
+        '_project_role': project.role,
+        '_project_company': project.company,
+        ...(project.companyUrl && { '_project_company_url': project.companyUrl }),
+        ...(project.gallery && { '_project_gallery': project.gallery }),
+        '_project_date_type': project.dateType,
+        '_project_date_format': project.dateFormat,
+        '_project_date_start': project.dateStart,
+        ...(project.dateEnd && { '_project_date_end': project.dateEnd })
       }
     };
 

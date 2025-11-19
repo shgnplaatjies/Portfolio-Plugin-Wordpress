@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:staging.dextertuition.co.za)",
+      "WebFetch(domain:staging.emrl.co.za)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

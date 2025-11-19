@@ -103,14 +103,14 @@ curl -X POST https://example.com/wp-json/wp/v2/projects \
     \"categories\": [41],
     \"tags\": [42, 43, 48],
     \"meta\": {
-      \"_portfolio_project_subtext\": \"Tagline\",
-      \"_portfolio_project_role\": \"Full Stack Engineer\",
-      \"_portfolio_project_company\": \"Company Name\",
-      \"_portfolio_project_source_url\": \"https://example.com\",
-      \"_portfolio_project_date_type\": \"range\",
-      \"_portfolio_project_date_format\": \"mm/yyyy\",
-      \"_portfolio_project_date_start\": \"2024-01-01\",
-      \"_portfolio_project_date_end\": \"2024-12-31\"
+      \"_project_subtext\": \"Tagline\",
+      \"_project_role\": \"Full Stack Engineer\",
+      \"_project_company\": \"Company Name\",
+      \"_project_source_url\": \"https://example.com\",
+      \"_project_date_type\": \"range\",
+      \"_project_date_format\": \"mm/yyyy\",
+      \"_project_date_start\": \"2024-01-01\",
+      \"_project_date_end\": \"2024-12-31\"
     }
   }"
 ```
@@ -124,7 +124,7 @@ curl -X POST https://example.com/wp-json/wp/v2/projects/123 \
   -d "{
     \"title\": \"Updated Title\",
     \"meta\": {
-      \"_portfolio_project_company\": \"New Company\"
+      \"_project_company\": \"New Company\"
     }
   }"
 ```
@@ -150,15 +150,15 @@ curl -X DELETE https://example.com/wp-json/wp/v2/projects/123 \
   "featured_media": 456,
   "link": "https://example.com/projects/project-name/",
   "meta": {
-    "_portfolio_project_subtext": "Brief description",
-    "_portfolio_project_role": "Lead Developer",
-    "_portfolio_project_company": "Company Name",
-    "_portfolio_project_source_url": "https://example.com",
-    "_portfolio_project_gallery": "123,456,789",
-    "_portfolio_project_date_type": "range",
-    "_portfolio_project_date_format": "mm/yyyy",
-    "_portfolio_project_date_start": "2024-01-01",
-    "_portfolio_project_date_end": "2024-12-31"
+    "_project_subtext": "Brief description",
+    "_project_role": "Lead Developer",
+    "_project_company": "Company Name",
+    "_project_source_url": "https://example.com",
+    "_project_gallery": "123,456,789",
+    "_project_date_type": "range",
+    "_project_date_format": "mm/yyyy",
+    "_project_date_start": "2024-01-01",
+    "_project_date_end": "2024-12-31"
   }
 }
 ```
@@ -184,16 +184,16 @@ curl https://example.com/wp-json/wp/v2/projects?tags=42,43
 
 | Field | Meta Key | Type | Notes |
 |-------|----------|------|-------|
-| Subtext | `_portfolio_project_subtext` | string | Brief tagline |
-| Role | `_portfolio_project_role` | string | Your position/role |
-| Company | `_portfolio_project_company` | string | Organization name |
-| Company URL | `_portfolio_project_company_url` | URL | Company website |
-| Source URL | `_portfolio_project_source_url` | URL | repo link |
-| Gallery Images | `_portfolio_project_gallery` | comma-separated IDs | Media attachment IDs |
-| Date Type | `_portfolio_project_date_type` | `single` \| `range` | Single date or date range |
-| Date Format | `_portfolio_project_date_format` | `yyyy` \| `mm/yyyy` \| `dd/mm/yyyy` | Display format |
-| Start Date | `_portfolio_project_date_start` | YYYY-MM-DD | Project start date |
-| End Date | `_portfolio_project_date_end` | YYYY-MM-DD | Project end date (optional) |
+| Subtext | `_project_subtext` | string | Brief tagline |
+| Role | `_project_role` | string | Your position/role |
+| Company | `_project_company` | string | Organization name |
+| Company URL | `_project_company_url` | URL | Company website |
+| Source URL | `_project_source_url` | URL | repo link |
+| Gallery Images | `_project_gallery` | comma-separated IDs | Media attachment IDs |
+| Date Type | `_project_date_type` | `single` \| `range` | Single date or date range |
+| Date Format | `_project_date_format` | `yyyy` \| `mm/yyyy` \| `dd/mm/yyyy` | Display format |
+| Start Date | `_project_date_start` | YYYY-MM-DD | Project start date |
+| End Date | `_project_date_end` | YYYY-MM-DD | Project end date (optional) |
 
 ## JavaScript Examples
 
@@ -227,14 +227,14 @@ const response = await fetch('/wp-json/wp/v2/projects', {
     categories: [41],
     tags: [42, 43, 48],
     meta: {
-      '_portfolio_project_subtext': 'Tagline',
-      '_portfolio_project_role': 'Lead Developer',
-      '_portfolio_project_company': 'Company',
-      '_portfolio_project_source_url': 'https://example.com',
-      '_portfolio_project_date_type': 'range',
-      '_portfolio_project_date_format': 'mm/yyyy',
-      '_portfolio_project_date_start': '2024-01-01',
-      '_portfolio_project_date_end': '2024-12-31'
+      '_project_subtext': 'Tagline',
+      '_project_role': 'Lead Developer',
+      '_project_company': 'Company',
+      '_project_source_url': 'https://example.com',
+      '_project_date_type': 'range',
+      '_project_date_format': 'mm/yyyy',
+      '_project_date_start': '2024-01-01',
+      '_project_date_end': '2024-12-31'
     }
   })
 });
@@ -245,7 +245,7 @@ const project = await response.json();
 
 ```javascript
 const project = await fetch('/wp-json/wp/v2/projects/123').then(r => r.json());
-const galleryIds = project.meta._portfolio_project_gallery.split(',');
+const galleryIds = project.meta._project_gallery.split(',');
 const images = await fetch(`/wp-json/wp/v2/media?include=${galleryIds.join(',')}`).then(r => r.json());
 ```
 

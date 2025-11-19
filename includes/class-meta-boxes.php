@@ -40,7 +40,7 @@ class Portfolio_Plugin_Meta_Boxes {
     public function render_project_details_box($post) {
         wp_nonce_field('portfolio_project_nonce', 'portfolio_project_nonce');
 
-        $subtext = get_post_meta($post->ID, '_portfolio_project_subtext', true);
+        $subtext = get_post_meta($post->ID, '_project_subtext', true);
         ?>
         <div class="portfolio-meta-field">
             <label for="portfolio_project_subtext">
@@ -62,7 +62,7 @@ class Portfolio_Plugin_Meta_Boxes {
     public function render_project_media_box($post) {
         wp_nonce_field('portfolio_media_nonce', 'portfolio_media_nonce');
 
-        $gallery_ids = get_post_meta($post->ID, '_portfolio_project_gallery', true);
+        $gallery_ids = get_post_meta($post->ID, '_project_gallery', true);
         $gallery_ids = $gallery_ids ? explode(',', $gallery_ids) : array();
 
         ?>
@@ -102,14 +102,14 @@ class Portfolio_Plugin_Meta_Boxes {
     public function render_project_meta_box($post) {
         wp_nonce_field('portfolio_meta_nonce', 'portfolio_meta_nonce');
 
-        $role = get_post_meta($post->ID, '_portfolio_project_role', true);
-        $company = get_post_meta($post->ID, '_portfolio_project_company', true);
-        $company_url = get_post_meta($post->ID, '_portfolio_project_company_url', true);
-        $source_url = get_post_meta($post->ID, '_portfolio_project_source_url', true);
-        $date_type = get_post_meta($post->ID, '_portfolio_project_date_type', true) ?: 'single';
-        $date_format = get_post_meta($post->ID, '_portfolio_project_date_format', true) ?: 'mm/yyyy';
-        $date_start = get_post_meta($post->ID, '_portfolio_project_date_start', true);
-        $date_end = get_post_meta($post->ID, '_portfolio_project_date_end', true);
+        $role = get_post_meta($post->ID, '_project_role', true);
+        $company = get_post_meta($post->ID, '_project_company', true);
+        $company_url = get_post_meta($post->ID, '_project_company_url', true);
+        $source_url = get_post_meta($post->ID, '_project_source_url', true);
+        $date_type = get_post_meta($post->ID, '_project_date_type', true) ?: 'single';
+        $date_format = get_post_meta($post->ID, '_project_date_format', true) ?: 'mm/yyyy';
+        $date_start = get_post_meta($post->ID, '_project_date_start', true);
+        $date_end = get_post_meta($post->ID, '_project_date_end', true);
 
         ?>
         <div class="portfolio-meta-field">
@@ -244,44 +244,44 @@ class Portfolio_Plugin_Meta_Boxes {
         }
 
         if (isset($_POST['portfolio_project_subtext'])) {
-            update_post_meta($post_id, '_portfolio_project_subtext', sanitize_text_field($_POST['portfolio_project_subtext']));
+            update_post_meta($post_id, '_project_subtext', sanitize_text_field($_POST['portfolio_project_subtext']));
         }
 
         if (isset($_POST['portfolio_project_gallery'])) {
             $gallery_ids = sanitize_text_field($_POST['portfolio_project_gallery']);
-            update_post_meta($post_id, '_portfolio_project_gallery', $gallery_ids);
+            update_post_meta($post_id, '_project_gallery', $gallery_ids);
         }
 
         if (isset($_POST['portfolio_project_role'])) {
-            update_post_meta($post_id, '_portfolio_project_role', sanitize_text_field($_POST['portfolio_project_role']));
+            update_post_meta($post_id, '_project_role', sanitize_text_field($_POST['portfolio_project_role']));
         }
 
         if (isset($_POST['portfolio_project_company'])) {
-            update_post_meta($post_id, '_portfolio_project_company', sanitize_text_field($_POST['portfolio_project_company']));
+            update_post_meta($post_id, '_project_company', sanitize_text_field($_POST['portfolio_project_company']));
         }
 
         if (isset($_POST['portfolio_project_company_url'])) {
-            update_post_meta($post_id, '_portfolio_project_company_url', esc_url_raw($_POST['portfolio_project_company_url']));
+            update_post_meta($post_id, '_project_company_url', esc_url_raw($_POST['portfolio_project_company_url']));
         }
 
         if (isset($_POST['portfolio_project_source_url'])) {
-            update_post_meta($post_id, '_portfolio_project_source_url', esc_url_raw($_POST['portfolio_project_source_url']));
+            update_post_meta($post_id, '_project_source_url', esc_url_raw($_POST['portfolio_project_source_url']));
         }
 
         if (isset($_POST['portfolio_project_date_type'])) {
-            update_post_meta($post_id, '_portfolio_project_date_type', sanitize_text_field($_POST['portfolio_project_date_type']));
+            update_post_meta($post_id, '_project_date_type', sanitize_text_field($_POST['portfolio_project_date_type']));
         }
 
         if (isset($_POST['portfolio_project_date_format'])) {
-            update_post_meta($post_id, '_portfolio_project_date_format', sanitize_text_field($_POST['portfolio_project_date_format']));
+            update_post_meta($post_id, '_project_date_format', sanitize_text_field($_POST['portfolio_project_date_format']));
         }
 
         if (isset($_POST['portfolio_project_date_start'])) {
-            update_post_meta($post_id, '_portfolio_project_date_start', sanitize_text_field($_POST['portfolio_project_date_start']));
+            update_post_meta($post_id, '_project_date_start', sanitize_text_field($_POST['portfolio_project_date_start']));
         }
 
         if (isset($_POST['portfolio_project_date_end'])) {
-            update_post_meta($post_id, '_portfolio_project_date_end', sanitize_text_field($_POST['portfolio_project_date_end']));
+            update_post_meta($post_id, '_project_date_end', sanitize_text_field($_POST['portfolio_project_date_end']));
         }
     }
 

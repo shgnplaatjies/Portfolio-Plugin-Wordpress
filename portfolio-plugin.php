@@ -33,16 +33,16 @@ add_action('init', function() {
 
 add_action('rest_api_init', function() {
     $meta_fields = array(
-        '_portfolio_project_subtext',
-        '_portfolio_project_role',
-        '_portfolio_project_company',
-        '_portfolio_project_company_url',
-        '_portfolio_project_source_url',
-        '_portfolio_project_gallery',
-        '_portfolio_project_date_type',
-        '_portfolio_project_date_format',
-        '_portfolio_project_date_start',
-        '_portfolio_project_date_end'
+        '_project_subtext',
+        '_project_role',
+        '_project_company',
+        '_project_company_url',
+        '_project_source_url',
+        '_project_gallery',
+        '_project_date_type',
+        '_project_date_format',
+        '_project_date_start',
+        '_project_date_end'
     );
 
     foreach ($meta_fields as $field) {
