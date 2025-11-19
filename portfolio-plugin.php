@@ -66,13 +66,7 @@ add_action('rest_api_init', function() {
             'object_subtype' => 'project',
             'type' => 'string',
             'single' => true,
-            'show_in_rest' => array(
-                'schema' => array(
-                    'type' => 'string',
-                    'format' => 'uri'
-                )
-            ),
-            'sanitize_callback' => 'esc_url_raw',
+            'show_in_rest' => true,
             'auth_callback' => function() {
                 return current_user_can('edit_posts');
             }
