@@ -104,6 +104,7 @@ class Portfolio_Plugin_Meta_Boxes {
 
         $role = get_post_meta($post->ID, '_portfolio_project_role', true);
         $company = get_post_meta($post->ID, '_portfolio_project_company', true);
+        $company_url = get_post_meta($post->ID, '_portfolio_project_company_url', true);
         $source_url = get_post_meta($post->ID, '_portfolio_project_source_url', true);
         $date_type = get_post_meta($post->ID, '_portfolio_project_date_type', true) ?: 'single';
         $date_format = get_post_meta($post->ID, '_portfolio_project_date_format', true) ?: 'mm/yyyy';
@@ -136,6 +137,20 @@ class Portfolio_Plugin_Meta_Boxes {
                 value="<?php echo esc_attr($company); ?>"
                 class="widefat"
                 placeholder="e.g., Acme Corporation"
+            />
+        </div>
+
+        <div class="portfolio-meta-field">
+            <label for="portfolio_project_company_url">
+                <strong>Company URL</strong>
+            </label>
+            <input
+                type="url"
+                id="portfolio_project_company_url"
+                name="portfolio_project_company_url"
+                value="<?php echo esc_attr($company_url); ?>"
+                class="widefat"
+                placeholder="https://company.com"
             />
         </div>
 
@@ -243,6 +258,10 @@ class Portfolio_Plugin_Meta_Boxes {
 
         if (isset($_POST['portfolio_project_company'])) {
             update_post_meta($post_id, '_portfolio_project_company', sanitize_text_field($_POST['portfolio_project_company']));
+        }
+
+        if (isset($_POST['portfolio_project_company_url'])) {
+            update_post_meta($post_id, '_portfolio_project_company_url', esc_url_raw($_POST['portfolio_project_company_url']));
         }
 
         if (isset($_POST['portfolio_project_source_url'])) {
