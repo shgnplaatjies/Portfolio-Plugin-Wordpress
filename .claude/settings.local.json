@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node bulk-upload-media.js:*)",
+      "Bash(node bulk-upload.js:*)",
+      "Bash(node bulk-add-tags.js:*)",
+      "Bash(node check-taxonomies.js:*)",
+      "Bash(node screenshot-capture.js:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
