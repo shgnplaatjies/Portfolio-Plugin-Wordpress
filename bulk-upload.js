@@ -121,7 +121,8 @@ function loadMediaGallery() {
             }
           });
 
-          mediaMap[projectName.toLowerCase()] = {
+          const projectKey = projectName.toLowerCase().replace(/\s+/g, '');
+          mediaMap[projectKey] = {
             gallery: ids.join(','),
             galleryCaption: captions,
             featured: null,
@@ -141,11 +142,12 @@ function loadMediaGallery() {
           const name = path.parse(thumbnailFiles[0]).name;
           const thumbnailId = parseInt(name);
           if (!isNaN(thumbnailId)) {
-            if (!mediaMap[projectName.toLowerCase()]) {
-              mediaMap[projectName.toLowerCase()] = { gallery: '', galleryCaption: {}, featured: null, thumbnail: null };
+            const projectKey = projectName.toLowerCase().replace(/\s+/g, '');
+            if (!mediaMap[projectKey]) {
+              mediaMap[projectKey] = { gallery: '', galleryCaption: {}, featured: null, thumbnail: null };
             }
-            mediaMap[projectName.toLowerCase()].thumbnail = thumbnailId;
-            mediaMap[projectName.toLowerCase()].featured = thumbnailId;
+            mediaMap[projectKey].thumbnail = thumbnailId;
+            mediaMap[projectKey].featured = thumbnailId;
           }
         }
       }
@@ -165,7 +167,8 @@ function loadProjectsFromCSV(filePath) {
     const mediaMap = loadMediaGallery();
 
     return records.map(record => {
-      const companyMedia = mediaMap[record.company.toLowerCase()] || { gallery: '', galleryCaption: {}, featured: null, thumbnail: null };
+      const companyKey = record.company.toLowerCase().replace(/\s+/g, '');
+      const companyMedia = mediaMap[companyKey] || { gallery: '', galleryCaption: {}, featured: null, thumbnail: null };
       return {
         title: record.title,
         company: record.company,

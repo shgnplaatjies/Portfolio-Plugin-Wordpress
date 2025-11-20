@@ -77,10 +77,11 @@ function parseCSVLine(line) {
 }
 
 async function captureScreenshots(url, company) {
-  const companyDir = path.join(BULK_UPLOAD_MEDIA, company.toLowerCase());
+  const companyDirName = company.toLowerCase();
+  const companyDir = path.join(BULK_UPLOAD_MEDIA, companyDirName);
   const galleryDir = path.join(companyDir, 'gallery');
 
-  
+
   if (!fs.existsSync(galleryDir)) {
     fs.mkdirSync(galleryDir, { recursive: true });
   }
@@ -90,43 +91,42 @@ async function captureScreenshots(url, company) {
     failed: []
   };
 
-  
+
   const displayUrl = url.replace(/^https?:\/\//, '');
 
   for (const [viewportKey, viewport] of Object.entries(VIEWPORTS)) {
+    let browser;
+    let page;
+
     try {
-      const browser = await chromium.launch();
-      const context = await browser.createBrowserContext({
+      browser = await chromium.launch();
+
+      page = await browser.newPage({
         viewport: {
           width: viewport.width,
           height: viewport.height
-        },
-        deviceScaleFactor: 1,
-        isMobile: viewportKey === 'mobile'
+        }
       });
 
-      const page = await context.newPage();
-
-      
       page.setDefaultTimeout(30000);
       page.setDefaultNavigationTimeout(30000);
 
       log(`Navigating to ${displayUrl} [${viewport.name}]...`);
 
       try {
-        
+
         await page.goto(url, { waitUntil: 'networkidle' });
       } catch (error) {
-        
+
         log(`  ⚠ Network idle timeout for ${displayUrl} [${viewport.name}], continuing with current page state`);
         await new Promise(resolve => setTimeout(resolve, 2000));
       }
 
-      
+
       log(`  Waiting for animations...`);
       await new Promise(resolve => setTimeout(resolve, 2000));
 
-      
+
       const timestamp = Date.now();
       const filename = `${viewport.name}-${timestamp}.png`;
       const filepath = path.join(galleryDir, filename);
@@ -140,9 +140,6 @@ async function captureScreenshots(url, company) {
         url: displayUrl
       });
 
-      await context.close();
-      await browser.close();
-
     } catch (error) {
       log(`  ✗ Failed to capture ${viewport.name}: ${error.message}`);
       results.failed.push({
@@ -150,12 +147,13 @@ async function captureScreenshots(url, company) {
         url: displayUrl,
         error: error.message
       });
+    } finally {
 
       try {
-        const browser = await chromium.launch();
-        await browser.close();
+        if (page) await page.close();
+        if (browser) await browser.close();
       } catch (e) {
-        
+
       }
     }
   }
