@@ -79,12 +79,15 @@ function parseCSVLine(line) {
 async function captureScreenshots(url, company) {
   const companyDirName = company.toLowerCase();
   const companyDir = path.join(BULK_UPLOAD_MEDIA, companyDirName);
-  const galleryDir = path.join(companyDir, 'gallery');
+  const screenshotsDir = path.join(companyDir, 'screenshots');
 
 
-  if (!fs.existsSync(galleryDir)) {
-    fs.mkdirSync(galleryDir, { recursive: true });
+  if (fs.existsSync(screenshotsDir)) {
+    log(`  Wiping existing screenshots folder...`);
+    fs.rmSync(screenshotsDir, { recursive: true, force: true });
   }
+
+  fs.mkdirSync(screenshotsDir, { recursive: true });
 
   const results = {
     success: [],
@@ -124,12 +127,12 @@ async function captureScreenshots(url, company) {
 
 
       log(`  Waiting for animations...`);
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise(resolve => setTimeout(resolve, 4000));
 
 
       const timestamp = Date.now();
       const filename = `${viewport.name}-${timestamp}.png`;
-      const filepath = path.join(galleryDir, filename);
+      const filepath = path.join(screenshotsDir, filename);
 
       await page.screenshot({ path: filepath, fullPage: false });
 
