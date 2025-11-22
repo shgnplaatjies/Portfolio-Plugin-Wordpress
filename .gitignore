@@ -52,3 +52,7 @@ wp-config.php
 /bulk-upload-media
 .env
 /node_modules/
+
+# IDE Settings
+.cursor/
+.vscode/
