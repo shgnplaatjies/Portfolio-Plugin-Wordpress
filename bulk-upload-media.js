@@ -129,24 +129,24 @@ async function processProjectMedia(projectDir) {
     thumbnail: null
   };
 
-  const thumbnailDir = path.join(projectDir, 'thumbnail');
-  const hasThumbnailDir = fs.existsSync(thumbnailDir);
+  const featuredDir = path.join(projectDir, 'featured');
+  const hasFeaturedDir = fs.existsSync(featuredDir);
 
-  if (hasThumbnailDir) {
-    console.log(`\nProcessing thumbnail image for project: ${projectName}`);
-    const thumbnailFiles = fs.readdirSync(thumbnailDir).filter(f => {
+  if (hasFeaturedDir) {
+    console.log(`\nProcessing featured image for project: ${projectName}`);
+    const featuredFiles = fs.readdirSync(featuredDir).filter(f => {
       const ext = path.extname(f).toLowerCase();
       return ['.jpg', '.jpeg', '.png', '.gif', '.webp'].includes(ext);
     });
 
-    if (thumbnailFiles.length > 0) {
-      const thumbnailFile = thumbnailFiles[0];
-      const thumbnailPath = path.join(thumbnailDir, thumbnailFile);
-      const fileName = path.parse(thumbnailFile).name;
+    if (featuredFiles.length > 0) {
+      const featuredFile = featuredFiles[0];
+      const featuredPath = path.join(featuredDir, featuredFile);
+      const fileName = path.parse(featuredFile).name;
       const existingId = parseInt(fileName);
 
       if (!isNaN(existingId)) {
-        console.log(`  Checking thumbnail: ${thumbnailFile}`);
+        console.log(`  Checking featured: ${featuredFile}`);
         const exists = await mediaExists(existingId);
         if (exists) {
           console.log(`    ✓ Already exists (ID: ${existingId}) - Skipping upload`);
@@ -159,15 +159,15 @@ async function processProjectMedia(projectDir) {
       }
 
       if (!result.thumbnail) {
-        console.log(`  Uploading thumbnail: ${thumbnailFile}`);
-        const mediaId = await uploadMedia(thumbnailPath, thumbnailFile);
+        console.log(`  Uploading featured: ${featuredFile}`);
+        const mediaId = await uploadMedia(featuredPath, featuredFile);
 
         if (mediaId) {
-          const ext = path.extname(thumbnailFile);
+          const ext = path.extname(featuredFile);
           const newFileName = `${mediaId}${ext}`;
-          const newFilePath = path.join(thumbnailDir, newFileName);
+          const newFilePath = path.join(featuredDir, newFileName);
 
-          fs.renameSync(thumbnailPath, newFilePath);
+          fs.renameSync(featuredPath, newFilePath);
           console.log(`    ✓ Uploaded (ID: ${mediaId}) → Renamed to: ${newFileName}`);
           result.thumbnail = mediaId;
           result.featured = mediaId;
@@ -178,8 +178,11 @@ async function processProjectMedia(projectDir) {
     }
   }
 
-  const galleryFiles = fs.readdirSync(projectDir).filter(f => {
-    const fullPath = path.join(projectDir, f);
+  const galleryDir = path.join(projectDir, 'gallery');
+  const scanDir = fs.existsSync(galleryDir) ? galleryDir : projectDir;
+
+  const galleryFiles = fs.readdirSync(scanDir).filter(f => {
+    const fullPath = path.join(scanDir, f);
     const stat = fs.statSync(fullPath);
     if (!stat.isFile()) return false;
     const ext = path.extname(f).toLowerCase();
@@ -190,7 +193,7 @@ async function processProjectMedia(projectDir) {
     console.log(`\nProcessing ${galleryFiles.length} gallery file(s) from project: ${projectName}`);
 
     for (const file of galleryFiles) {
-      const filePath = path.join(projectDir, file);
+      const filePath = path.join(scanDir, file);
       const fileName = path.parse(file).name;
       const existingId = parseInt(fileName);
 
@@ -199,11 +202,9 @@ async function processProjectMedia(projectDir) {
         const exists = await mediaExists(existingId);
         if (exists) {
           console.log(`    ✓ Already exists (ID: ${existingId}) - Skipping upload`);
-          result.gallery.push(existingId);
-
-          // Check for caption file even if media already exists
+          result.gallery.push(existingId);         
           const captionFileName = `${existingId}.txt`;
-          const captionFilePath = path.join(projectDir, captionFileName);
+          const captionFilePath = path.join(scanDir, captionFileName);
           if (fs.existsSync(captionFilePath)) {
             const caption = fs.readFileSync(captionFilePath, 'utf8').trim();
             if (caption) {
@@ -224,23 +225,23 @@ async function processProjectMedia(projectDir) {
       if (mediaId) {
         const ext = path.extname(file);
         const newFileName = `${mediaId}${ext}`;
-        const newFilePath = path.join(projectDir, newFileName);
+        const newFilePath = path.join(scanDir, newFileName);
 
         fs.renameSync(filePath, newFilePath);
         console.log(`    ✓ Uploaded (ID: ${mediaId}) → Renamed to: ${newFileName}`);
         result.gallery.push(mediaId);
 
-        // Check for caption file
+       
         const captionFileName = `${fileName}.txt`;
-        const captionFilePath = path.join(projectDir, captionFileName);
+        const captionFilePath = path.join(scanDir, captionFileName);
         if (fs.existsSync(captionFilePath)) {
           const caption = fs.readFileSync(captionFilePath, 'utf8').trim();
           if (caption) {
             result.galleryCaption[mediaId] = caption;
           }
-          // Rename caption file to match media ID
+         
           const newCaptionFileName = `${mediaId}.txt`;
-          const newCaptionFilePath = path.join(projectDir, newCaptionFileName);
+          const newCaptionFilePath = path.join(scanDir, newCaptionFileName);
           fs.renameSync(captionFilePath, newCaptionFilePath);
           console.log(`    ✓ Caption file updated: ${newCaptionFileName}`);
         }
