@@ -81,23 +81,40 @@ async function captureScreenshots(url, company) {
   const companyDir = path.join(BULK_UPLOAD_MEDIA, companyDirName);
   const galleryDir = path.join(companyDir, 'gallery');
 
-
-  if (fs.existsSync(galleryDir)) {
-    log(`  Wiping existing gallery folder...`);
-    fs.rmSync(galleryDir, { recursive: true, force: true });
-  }
-
   fs.mkdirSync(galleryDir, { recursive: true });
 
   const results = {
     success: [],
-    failed: []
+    failed: [],
+    skipped: []
   };
 
+  const existingFiles = fs.existsSync(galleryDir) ? fs.readdirSync(galleryDir) : [];
+  const existingViewports = new Set();
+
+  existingFiles.forEach(file => {
+    const ext = path.extname(file).toLowerCase();
+    if (['.jpg', '.jpeg', '.png', '.gif', '.webp'].includes(ext)) {
+      const match = file.match(/^(mobile|tablet|desktop)-/);
+      if (match) {
+        existingViewports.add(match[1]);
+      }
+    }
+  });
 
   const displayUrl = url.replace(/^https?:\/\//, '');
 
   for (const [viewportKey, viewport] of Object.entries(VIEWPORTS)) {
+    if (existingViewports.has(viewport.name)) {
+      const existingFile = existingFiles.find(f => f.startsWith(`${viewport.name}-`));
+      log(`  ⊘ Skipping ${viewport.name}: already exists (${existingFile})`);
+      results.skipped.push({
+        viewport: viewport.name,
+        filename: existingFile,
+        url: displayUrl
+      });
+      continue;
+    }
     let browser;
     let page;
 
@@ -111,8 +128,8 @@ async function captureScreenshots(url, company) {
         }
       });
 
-      page.setDefaultTimeout(30000);
-      page.setDefaultNavigationTimeout(30000);
+      page.setDefaultTimeout(90000);
+      page.setDefaultNavigationTimeout(90000);
 
       log(`Navigating to ${displayUrl} [${viewport.name}]...`);
 
@@ -136,7 +153,7 @@ async function captureScreenshots(url, company) {
 
       await page.screenshot({ path: filepath, fullPage: false });
 
-      log(`  ✓ Captured: ${filename}`);
+      log(`  Captured: ${filename}`);
       results.success.push({
         viewport: viewport.name,
         filename: filename,
@@ -144,7 +161,7 @@ async function captureScreenshots(url, company) {
       });
 
     } catch (error) {
-      log(`  ✗ Failed to capture ${viewport.name}: ${error.message}`);
+      log(`  Failed to capture ${viewport.name}: ${error.message}`);
       results.failed.push({
         viewport: viewport.name,
         url: displayUrl,
@@ -174,7 +191,7 @@ async function main() {
 
   
   if (!fs.existsSync(CSV_FILE)) {
-    log(`✗ Error: CSV file not found: ${CSV_FILE}`);
+    log(`Error: CSV file not found: ${CSV_FILE}`);
     process.exit(1);
   }
 

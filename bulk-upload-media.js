@@ -59,6 +59,8 @@ async function fetch(url, options = {}) {
       });
     });
 
+    req.setTimeout(120000);
+
     req.on('error', reject);
     req.on('timeout', () => {
       req.destroy();
@@ -73,18 +75,23 @@ async function fetch(url, options = {}) {
   });
 }
 
-async function mediaExists(mediaId) {
+async function mediaExistsBySlug(filename) {
   try {
-    const response = await fetch(`${WP_REST_API}/media/${mediaId}`, {
+    const slug = path.parse(filename).name;
+
+    const response = await fetch(`${WP_REST_API}/media?slug=${encodeURIComponent(slug)}`, {
       method: 'GET',
       headers: {
         'Authorization': `Basic ${JWT_TOKEN}`
       }
     });
 
-    return response.ok && response.status === 200;
+    if (!response.ok) return null;
+
+    const media = await response.json();
+    return media.length > 0 ? media[0] : null;
   } catch (error) {
-    return false;
+    return null;
   }
 }
 
@@ -142,36 +149,23 @@ async function processProjectMedia(projectDir) {
     if (featuredFiles.length > 0) {
       const featuredFile = featuredFiles[0];
       const featuredPath = path.join(featuredDir, featuredFile);
-      const fileName = path.parse(featuredFile).name;
-      const existingId = parseInt(fileName);
 
-      if (!isNaN(existingId)) {
-        console.log(`  Checking featured: ${featuredFile}`);
-        const exists = await mediaExists(existingId);
-        if (exists) {
-          console.log(`    ✓ Already exists (ID: ${existingId}) - Skipping upload`);
-          result.thumbnail = existingId;
-          result.featured = existingId;
-          await new Promise(resolve => setTimeout(resolve, 300));
-        } else {
-          console.log(`    ⚠ ID ${existingId} not found on WordPress - Re-uploading`);
-        }
-      }
+      console.log(`  Checking featured: ${featuredFile}`);
+      const existingMedia = await mediaExistsBySlug(featuredFile);
 
-      if (!result.thumbnail) {
+      if (existingMedia) {
+        console.log(`    Already exists (ID: ${existingMedia.id}, slug: ${existingMedia.slug}) - Skipping upload`);
+        result.thumbnail = existingMedia.id;
+        result.featured = existingMedia.id;
+        await new Promise(resolve => setTimeout(resolve, 300));
+      } else {
         console.log(`  Uploading featured: ${featuredFile}`);
         const mediaId = await uploadMedia(featuredPath, featuredFile);
 
         if (mediaId) {
-          const ext = path.extname(featuredFile);
-          const newFileName = `${mediaId}${ext}`;
-          const newFilePath = path.join(featuredDir, newFileName);
-
-          fs.renameSync(featuredPath, newFilePath);
-          console.log(`    ✓ Uploaded (ID: ${mediaId}) → Renamed to: ${newFileName}`);
+          console.log(`    Uploaded (ID: ${mediaId})`);
           result.thumbnail = mediaId;
           result.featured = mediaId;
-
           await new Promise(resolve => setTimeout(resolve, 500));
         }
       }
@@ -195,43 +189,34 @@ async function processProjectMedia(projectDir) {
     for (const file of galleryFiles) {
       const filePath = path.join(scanDir, file);
       const fileName = path.parse(file).name;
-      const existingId = parseInt(fileName);
 
-      if (!isNaN(existingId)) {
-        console.log(`  Checking: ${file}`);
-        const exists = await mediaExists(existingId);
-        if (exists) {
-          console.log(`    ✓ Already exists (ID: ${existingId}) - Skipping upload`);
-          result.gallery.push(existingId);         
-          const captionFileName = `${existingId}.txt`;
-          const captionFilePath = path.join(scanDir, captionFileName);
-          if (fs.existsSync(captionFilePath)) {
-            const caption = fs.readFileSync(captionFilePath, 'utf8').trim();
-            if (caption) {
-              result.galleryCaption[existingId] = caption;
-            }
+      console.log(`  Checking: ${file}`);
+      const existingMedia = await mediaExistsBySlug(file);
+
+      if (existingMedia) {
+        console.log(`    Already exists (ID: ${existingMedia.id}, slug: ${existingMedia.slug}) - Skipping upload`);
+        result.gallery.push(existingMedia.id);
+
+        const captionFileName = `${fileName}.txt`;
+        const captionFilePath = path.join(scanDir, captionFileName);
+        if (fs.existsSync(captionFilePath)) {
+          const caption = fs.readFileSync(captionFilePath, 'utf8').trim();
+          if (caption) {
+            result.galleryCaption[existingMedia.id] = caption;
           }
-
-          await new Promise(resolve => setTimeout(resolve, 300));
-          continue;
-        } else {
-          console.log(`    ⚠ ID ${existingId} not found on WordPress - Re-uploading`);
         }
+
+        await new Promise(resolve => setTimeout(resolve, 300));
+        continue;
       }
 
       console.log(`  Uploading: ${file}`);
       const mediaId = await uploadMedia(filePath, file);
 
       if (mediaId) {
-        const ext = path.extname(file);
-        const newFileName = `${mediaId}${ext}`;
-        const newFilePath = path.join(scanDir, newFileName);
-
-        fs.renameSync(filePath, newFilePath);
-        console.log(`    ✓ Uploaded (ID: ${mediaId}) → Renamed to: ${newFileName}`);
+        console.log(`    Uploaded (ID: ${mediaId})`);
         result.gallery.push(mediaId);
 
-       
         const captionFileName = `${fileName}.txt`;
         const captionFilePath = path.join(scanDir, captionFileName);
         if (fs.existsSync(captionFilePath)) {
@@ -239,16 +224,11 @@ async function processProjectMedia(projectDir) {
           if (caption) {
             result.galleryCaption[mediaId] = caption;
           }
-         
-          const newCaptionFileName = `${mediaId}.txt`;
-          const newCaptionFilePath = path.join(scanDir, newCaptionFileName);
-          fs.renameSync(captionFilePath, newCaptionFilePath);
-          console.log(`    ✓ Caption file updated: ${newCaptionFileName}`);
         }
 
         await new Promise(resolve => setTimeout(resolve, 500));
       } else {
-        console.log(`    ✗ Failed to upload`);
+        console.log(`    Failed to upload`);
       }
     }
   }
@@ -300,7 +280,7 @@ async function main() {
     }
   }
 
-  console.log(`\n✓ Media upload complete: ${totalUploaded} file(s) uploaded and renamed`);
+  console.log(`\nMedia upload complete: ${totalUploaded} file(s) uploaded`);
   console.log('\nMedia map:');
   console.log(JSON.stringify(mediaMap, null, 2));
 }

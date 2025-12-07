@@ -81,7 +81,49 @@ function parseCSVLine(line) {
   return result;
 }
 
-function loadMediaGallery() {
+async function fetchMediaSlugToIdMap() {
+  try {
+    const allMedia = [];
+    let page = 1;
+    let hasMore = true;
+
+    while (hasMore) {
+      const response = await fetch(`${WP_REST_API}/media?per_page=100&page=${page}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Basic ${JWT_TOKEN}`
+        }
+      });
+
+      if (!response.ok) {
+        console.warn(`Warning: Failed to fetch media page ${page}`);
+        break;
+      }
+
+      const media = await response.json();
+      if (media.length === 0) {
+        hasMore = false;
+      } else {
+        allMedia.push(...media);
+        page++;
+      }
+    }
+
+    const slugToIdMap = {};
+    allMedia.forEach(m => {
+      if (m.slug) {
+        slugToIdMap[m.slug] = m.id;
+      }
+    });
+
+    return slugToIdMap;
+  } catch (error) {
+    console.warn('Warning: Could not fetch media from WordPress:', error.message);
+    return {};
+  }
+}
+
+function loadMediaGallery(slugToIdMap) {
   try {
     const mediaDir = path.join(__dirname, 'bulk-upload-media');
     const mediaMap = {};
@@ -110,23 +152,27 @@ function loadMediaGallery() {
       });
 
       if (files.length > 0) {
-        const ids = files.map(f => {
-          const name = path.parse(f).name;
-          return parseInt(name);
-        }).filter(id => !isNaN(id));
+        const ids = [];
+        const captions = {};
 
-        if (ids.length > 0) {
-          const captions = {};
-          ids.forEach(id => {
-            const captionFile = path.join(scanDir, `${id}.txt`);
+        files.forEach(f => {
+          const slug = path.parse(f).name;
+          const mediaId = slugToIdMap[slug];
+
+          if (mediaId) {
+            ids.push(mediaId);
+
+            const captionFile = path.join(scanDir, `${slug}.txt`);
             if (fs.existsSync(captionFile)) {
               const caption = fs.readFileSync(captionFile, 'utf8').trim();
               if (caption) {
-                captions[id] = caption;
+                captions[mediaId] = caption;
               }
             }
-          });
+          }
+        });
 
+        if (ids.length > 0) {
           const projectKey = projectName.toLowerCase();
           mediaMap[projectKey] = {
             gallery: ids.join(','),
@@ -145,9 +191,10 @@ function loadMediaGallery() {
         });
 
         if (featuredFiles.length > 0) {
-          const name = path.parse(featuredFiles[0]).name;
-          const featuredId = parseInt(name);
-          if (!isNaN(featuredId)) {
+          const slug = path.parse(featuredFiles[0]).name;
+          const featuredId = slugToIdMap[slug];
+
+          if (featuredId) {
             const projectKey = projectName.toLowerCase();
             if (!mediaMap[projectKey]) {
               mediaMap[projectKey] = { gallery: '', galleryCaption: {}, featured: null, thumbnail: null };
@@ -166,11 +213,11 @@ function loadMediaGallery() {
   }
 }
 
-function loadProjectsFromCSV(filePath) {
+async function loadProjectsFromCSV(filePath, slugToIdMap) {
   try {
     const content = fs.readFileSync(filePath, 'utf8');
     const records = parseCSV(content);
-    const mediaMap = loadMediaGallery();
+    const mediaMap = loadMediaGallery(slugToIdMap);
 
     return records.map(record => {
       const companyKey = record.company.toLowerCase();
@@ -229,6 +276,8 @@ async function fetch(url, options = {}) {
         });
       });
     });
+
+    req.setTimeout(120000);
 
     req.on('error', reject);
     req.on('timeout', () => {
@@ -305,7 +354,11 @@ async function main() {
     process.exit(1);
   }
 
-  const projects = loadProjectsFromCSV(CSV_FILE);
+  console.log('Fetching media from WordPress to build slug-to-ID map...\n');
+  const slugToIdMap = await fetchMediaSlugToIdMap();
+  console.log(`Found ${Object.keys(slugToIdMap).length} media items in WordPress\n`);
+
+  const projects = await loadProjectsFromCSV(CSV_FILE, slugToIdMap);
 
   console.log('Starting bulk upload...\n');
   console.log(`WordPress URL: ${WP_URL}`);

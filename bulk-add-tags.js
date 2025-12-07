@@ -133,10 +133,10 @@ async function createTag(tag) {
     }
 
     const created = await response.json();
-    console.log(`✓ Created: ${created.name} (ID: ${created.id})`);
+    console.log(`Created: ${created.name} (ID: ${created.id})`);
     return created;
   } catch (error) {
-    console.error(`✗ Error creating tag "${tag.name}":`, error.message);
+    console.error(`Error creating tag "${tag.name}":`, error.message);
     return null;
   }
 }
